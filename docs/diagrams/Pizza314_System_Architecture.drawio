@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="Pizza3.14" version="22.1.0">
+  <diagram id="pizza314-arch" name="System Architecture">
+    <mxGraphModel dx="1800" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="&lt;b&gt;Pizza 3.14 π — System Architecture Diagram&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;color:#B8B0A4;&quot;&gt;Interactive Tabletop Pizza Ordering &amp;amp; Kitchen Management System&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontColor=#EDE8DE;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry x="200" y="16" width="1400" height="56" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="layer_pres" value="<b>Presentation Layer</b><br><font style="font-size:10px;color:#B8B0A4;">Interactive Table Device: Tablet / Touch Laptop (Browser) — Next.js 14 + React + GSAP</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#07070B;strokeColor=#F97316;strokeWidth=2;fontColor=#F97316;fontSize=14;fontStyle=1;verticalAlign=top;spacingTop=8;align=left;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="180" y="88" width="1580" height="268" as="geometry"/>
+        </mxCell>
+        <mxCell id="layer_app" value="<b>Application Layer</b><br><font style="font-size:10px;color:#B8B0A4;">Backend Server: Custom Node.js HTTP Server + Next.js 14 (server.ts)</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#07070B;strokeColor=#F5C948;strokeWidth=2;fontColor=#F5C948;fontSize=14;fontStyle=1;verticalAlign=top;spacingTop=8;align=left;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="180" y="378" width="1580" height="318" as="geometry"/>
+        </mxCell>
+        <mxCell id="layer_data" value="<b>Data Layer</b>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#07070B;strokeColor=#5CB870;strokeWidth=2;fontColor=#5CB870;fontSize=14;fontStyle=1;verticalAlign=top;spacingTop=8;align=left;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="180" y="718" width="1580" height="118" as="geometry"/>
+        </mxCell>
+        <mxCell id="layer_ext" value="<b>External Systems</b>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#07070B;strokeColor=#636370;strokeWidth=2;fontColor=#636370;fontSize=14;fontStyle=1;verticalAlign=top;spacingTop=8;align=left;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="180" y="858" width="1580" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="actor_customer" value="<b>Customer</b>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A1A1F;strokeColor=#EDE8DE;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="24" y="148" width="130" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="actor_kitchen" value="<b>Kitchen Staff</b>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A1A1F;strokeColor=#EDE8DE;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="24" y="228" width="130" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="actor_admin" value="<b>Admin</b>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A1A1F;strokeColor=#EDE8DE;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="24" y="308" width="130" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="ui_table" value="<b>Customer Table UI</b><br><font style="font-size:9px;color:#B8B0A4;">/table/{tableId}<br>· Orbit ring + PizzaCanvas (@dnd-kit)<br>· Nutrition & Bill panels<br>· Waiting games (client-only)<br>· Order status + Feedback form</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#111116;strokeColor=#F97316;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="210" y="168" width="360" height="168" as="geometry"/>
+        </mxCell>
+        <mxCell id="ui_kitchen" value="<b>Kitchen Kanban UI</b><br><font style="font-size:9px;color:#B8B0A4;">/kitchen<br>· 5-column board (today)<br>· Advance status<br>· GSAP card transitions</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#111116;strokeColor=#F97316;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="600" y="168" width="340" height="168" as="geometry"/>
+        </mxCell>
+        <mxCell id="ui_admin" value="<b>Admin Dashboard UI</b><br><font style="font-size:9px;color:#B8B0A4;">/admin<br>· Stats & charts (Recharts)<br>· Orders & menu toggle<br>· Chain verifier (Web Crypto)</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#111116;strokeColor=#F97316;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="970" y="168" width="340" height="168" as="geometry"/>
+        </mxCell>
+        <mxCell id="ui_login" value="<b>Login UI</b><br><font style="font-size:9px;color:#B8B0A4;">/login<br>· Kitchen / Admin passphrase<br>· Signed HttpOnly cookies</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#111116;strokeColor=#F97316;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="168" width="300" height="168" as="geometry"/>
+        </mxCell>
+        <mxCell id="app_server" value="<b>Custom HTTP Server</b><br><font style="font-size:9px;color:#B8B0A4;">server.ts — Next.js + http.createServer</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#111116;strokeColor=#F5C948;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="210" y="448" width="280" height="88" as="geometry"/>
+        </mxCell>
+        <mxCell id="app_rest" value="<b>REST API Gateway</b><br><font style="font-size:9px;color:#B8B0A4;">/api/* — HTTP/JSON</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#111116;strokeColor=#F5C948;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="520" y="448" width="280" height="88" as="geometry"/>
+        </mxCell>
+        <mxCell id="app_socket" value="<b>Socket.io Service</b><br><font style="font-size:9px;color:#B8B0A4;">rooms: kitchen | table-{id} | admin</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#111116;strokeColor=#F5C948;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="830" y="448" width="300" height="88" as="geometry"/>
+        </mxCell>
+        <mxCell id="app_order" value="<b>Order Management</b><br><font style="font-size:9px;color:#B8B0A4;">POST /api/orders<br>PATCH .../status</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#111116;strokeColor=#F5C948;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="210" y="562" width="250" height="108" as="geometry"/>
+        </mxCell>
+        <mxCell id="app_menu" value="<b>Menu &amp; Famous Combo</b><br><font style="font-size:9px;color:#B8B0A4;">GET /api/menu<br>GET /api/menu/famous-combo</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#111116;strokeColor=#F5C948;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="562" width="250" height="108" as="geometry"/>
+        </mxCell>
+        <mxCell id="app_feedback" value="<b>Feedback Ledger Service</b><br><font style="font-size:9px;color:#B8B0A4;">SHA-256 hash chain<br>append-only blocks</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#111116;strokeColor=#F5C948;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="770" y="562" width="280" height="108" as="geometry"/>
+        </mxCell>
+        <mxCell id="app_auth" value="<b>Auth Service</b><br><font style="font-size:9px;color:#B8B0A4;">middleware.ts<br>POST /api/auth/login</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#111116;strokeColor=#F5C948;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="562" width="250" height="108" as="geometry"/>
+        </mxCell>
+        <mxCell id="data_prisma" value="<b>Prisma ORM</b><br><font style="font-size:9px;color:#B8B0A4;">src/lib/prisma.ts</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#111116;strokeColor=#5CB870;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="400" y="748" width="320" height="72" as="geometry"/>
+        </mxCell>
+        <mxCell id="data_db" value="<b>PostgreSQL Database</b><br><font style="font-size:9px;color:#B8B0A4;">MenuItem · Order · OrderLayer · Feedback (append-only)</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#111116;strokeColor=#5CB870;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="748" width="520" height="72" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_supabase" value="<b>Supabase PostgreSQL (Hosted)</b><br><font style="font-size:9px;color:#B8B0A4;">Cloud database — free tier</font>" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A1A1F;strokeColor=#636370;fontColor=#EDE8DE;fontSize=11;align=left;verticalAlign=top;spacingTop=6;spacingLeft=14;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="620" y="878" width="480" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" value="Touch / tap / drag" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="actor_customer" target="ui_table">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" value="Advance orders" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="actor_kitchen" target="ui_kitchen">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" value="Authenticate" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="actor_kitchen" target="ui_login">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5" value="Manage &amp; verify" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="actor_admin" target="ui_admin">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" value="Authenticate" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="actor_admin" target="ui_login">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7" value="REST: menu, orders, feedback" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="ui_table" target="app_rest">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" value="WebSocket: join-table" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="ui_table" target="app_socket">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" value="REST: orders/status" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="ui_kitchen" target="app_rest">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e10" value="WebSocket: join-kitchen" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="ui_kitchen" target="app_socket">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e11" value="REST: admin/*" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="ui_admin" target="app_rest">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e12" value="WebSocket: join-admin" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="ui_admin" target="app_socket">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e13" value="POST login" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="ui_login" target="app_auth">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e14" value="HTTP handler" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="app_server" target="app_rest">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e15" value="attach Socket.io" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="app_server" target="app_socket">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e16" value="route" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="app_rest" target="app_order">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e17" value="route" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="app_rest" target="app_menu">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e18" value="route" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="app_rest" target="app_feedback">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e19" value="route" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="app_rest" target="app_auth">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e20" value="emit order-new,&amp;#xa;order-status-update,&amp;#xa;order-advance" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="app_order" target="app_socket">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e21" value="Prisma read/write" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="app_order" target="data_prisma">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e22" value="Read menu / combos" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="app_menu" target="data_prisma">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e23" value="Store hash-chain block" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="app_feedback" target="data_prisma">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e24" value="SQL queries" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="data_prisma" target="data_db">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e25" value="Hosted connection&amp;#xa;(DATABASE_URL)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#EDE8DE;fontSize=9;strokeColor=#636370;labelBackgroundColor=#07070B;" edge="1" parent="1" source="data_db" target="ext_supabase">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

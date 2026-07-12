@@ -11,7 +11,9 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "npx prisma db seed",
     "db:reset": "prisma migrate reset --force",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "pitch:deck": "node scripts/generate-pitch-deck.mjs",
+    "arch:diagram": "node scripts/build-architecture-diagram.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

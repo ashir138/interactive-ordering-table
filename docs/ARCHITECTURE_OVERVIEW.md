@@ -2,55 +2,25 @@
 
 ## System Diagram
 
+Layered component diagram (Presentation → Application → Data → External), aligned with the FYP reference style and the landing-page color system.
+
+![Pizza3.14 System Architecture](./diagrams/Pizza314_System_Architecture.png)
+
+**Source files** (edit and re-export):
+
+| File | Use |
+|------|-----|
+| [`diagrams/Pizza314_System_Architecture.drawio`](./diagrams/Pizza314_System_Architecture.drawio) | Open in [diagrams.net](https://app.diagrams.net) for manual edits |
+| [`diagrams/Pizza314_System_Architecture.svg`](./diagrams/Pizza314_System_Architecture.svg) | Vector export for print / slides |
+| [`diagrams/Pizza314_System_Architecture.png`](./diagrams/Pizza314_System_Architecture.png) | Raster export for PowerPoint / reports |
+
+**Regenerate** after changing [`scripts/build-architecture-diagram.mjs`](../scripts/build-architecture-diagram.mjs):
+
+```bash
+npm run arch:diagram
 ```
-Browser (Customer)       Browser (Kitchen)     Browser (Admin)
-       |                        |                      |
-  HTTP + Socket.io        HTTP + Socket.io          HTTP
-       |                        |                      |
-       +------------------------+----------------------+
-                                |
-                    +-----------v-----------+
-                    |  Next.js 14 App       |
-                    |  (Vercel Serverless)  |
-                    |                       |
-                    |  Pages:               |
-                    |   /table/[tableId]    |
-                    |   /kitchen            |
-                    |   /admin              |
-                    |   /login              |
-                    |                       |
-                    |  API Routes:          |
-                    |   /api/menu           |
-                    |   /api/orders         |
-                    |   /api/orders/[id]    |
-                    |   /api/orders/[id]/   |
-                    |     status            |
-                    |   /api/feedback       |
-                    |   /api/admin/feedback |
-                    |   /api/admin/stats    |
-                    |   /api/auth/login     |
-                    |                       |
-                    |  Socket.io Server:    |
-                    |   room: kitchen       |
-                    |   room: table-{id}    |
-                    |                       |
-                    |  Middleware:          |
-                    |   /kitchen → cookie   |
-                    |   /admin   → cookie   |
-                    +-----------+-----------+
-                                |
-                         Prisma ORM
-                                |
-                    +-----------v-----------+
-                    |  Supabase PostgreSQL  |
-                    |  (Free Tier)          |
-                    |                       |
-                    |  MenuItem             |
-                    |  Order                |
-                    |  OrderLayer           |
-                    |  Feedback (chain)     |
-                    +-----------------------+
-```
+
+This rebuilds all three formats from the canonical layout defined in the build script.
 
 ## Data Flow: Customer Places Order
 
