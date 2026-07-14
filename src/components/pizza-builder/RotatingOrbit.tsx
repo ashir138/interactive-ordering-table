@@ -10,6 +10,7 @@ import {
 } from "react";
 import gsap from "gsap";
 import Image from "next/image";
+import { cutoutUrl } from "@/lib/pizza-assets";
 import type { MenuItem } from "@/types";
 import type { PizzaCanvasHandle } from "./PizzaCanvas";
 
@@ -17,6 +18,8 @@ interface Props {
   items: MenuItem[];
   selectedIds: Set<number>;
   onApply: (item: MenuItem) => void;
+  /** Fires when a token is hovered/focused/tapped — drives the detail panel. */
+  onFocus?: (item: MenuItem) => void;
   dropTargetRef: RefObject<PizzaCanvasHandle>;
   /** Diameter of the entire orbit ring (px). Items sit on a circle of this size. */
   ringSize?: number;
@@ -42,6 +45,7 @@ export default function RotatingOrbit({
   items,
   selectedIds,
   onApply,
+  onFocus,
   dropTargetRef,
   ringSize = 660,
   tileSize = 84,
@@ -228,10 +232,15 @@ export default function RotatingOrbit({
                 else itemRefs.current.delete(item.id);
               }}
               type="button"
-              onPointerDown={(e) => onPointerDown(e, item)}
+              onPointerDown={(e) => {
+                onFocus?.(item);
+                onPointerDown(e, item);
+              }}
               onPointerMove={onPointerMove}
               onPointerUp={(e) => onPointerUp(e, item)}
               onPointerCancel={onPointerCancel}
+              onPointerEnter={() => onFocus?.(item)}
+              onFocus={() => onFocus?.(item)}
               onClick={() => onClick(item)}
               aria-pressed={isSelected}
               aria-label={`${item.name}, $${item.price.toFixed(2)} — drag onto pizza or tap to add`}
@@ -256,35 +265,41 @@ export default function RotatingOrbit({
                 style={{ width: tileSize }}
               >
                 <span
-                  className={`relative rounded-full border-2 flex items-center justify-center transition-colors shrink-0
+                  className={`relative rounded-full border flex items-center justify-center transition-all duration-200 shrink-0 overflow-hidden backdrop-blur-md
                     ${isSelected
-                      ? "border-ember bg-ember/15 shadow-[0_0_28px_rgba(255,107,53,0.55)]"
-                      : "border-ash bg-void/85 hover:border-ember/70"}`}
-                  style={{ width: tileSize, height: tileSize }}
+                      ? "border-ember/80 shadow-[0_0_26px_hsl(24_95%_53%/0.5)]"
+                      : "border-cream/15 hover:border-ember/60 hover:shadow-[0_0_20px_hsl(24_95%_53%/0.3)]"}`}
+                  style={{
+                    width: tileSize,
+                    height: tileSize,
+                    background:
+                      "radial-gradient(circle at 50% 38%, hsl(30 12% 14% / 0.85), hsl(240 10% 5% / 0.9))",
+                  }}
                 >
                   <Image
-                    src={item.imageUrl}
+                    src={cutoutUrl(item.imageUrl)}
                     alt=""
                     fill
                     sizes={`${tileSize}px`}
-                    className="object-contain p-2 pointer-events-none select-none"
+                    loading="eager"
+                    className="object-contain p-2 pointer-events-none select-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
                   />
                   <span
-                    className={`absolute -bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold border whitespace-nowrap
+                    className={`absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold border whitespace-nowrap tabular-nums
                       ${isSelected
                         ? "bg-ember text-void border-ember"
-                        : "bg-void/95 text-ember border-ash"}`}
+                        : "bg-black/90 text-ember border-cream/15"}`}
                   >
                     ${item.price.toFixed(2)}
                   </span>
                   {isSelected && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-ember text-void text-[10px] font-bold flex items-center justify-center shadow">
+                    <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-b from-ember to-tomato text-void text-[10px] font-bold flex items-center justify-center shadow-[0_0_10px_hsl(24_95%_53%/0.6)]">
                       ✓
                     </span>
                   )}
                 </span>
                 {/* Name label below the circle */}
-                <span className="mt-1 text-[9px] font-mono text-cream/75 text-center leading-tight truncate w-full px-0.5 select-none">
+                <span className="mt-1.5 text-[9px] font-mono uppercase tracking-wide text-cream/60 text-center leading-tight truncate w-full px-0.5 select-none">
                   {item.name}
                 </span>
               </span>
@@ -305,16 +320,22 @@ export default function RotatingOrbit({
           }}
         >
           <div
-            className={`relative rounded-full bg-void/85 border-2 backdrop-blur-sm
-              ${drag.over ? "border-ember shadow-[0_0_30px_rgba(255,107,53,0.6)]" : "border-ash"}`}
-            style={{ width: tileSize, height: tileSize }}
+            className={`relative rounded-full border overflow-hidden backdrop-blur-md
+              ${drag.over ? "border-ember shadow-[0_0_30px_hsl(24_95%_53%/0.6)] scale-110" : "border-cream/25"}`}
+            style={{
+              width: tileSize,
+              height: tileSize,
+              background:
+                "radial-gradient(circle at 50% 38%, hsl(30 12% 14% / 0.85), hsl(240 10% 5% / 0.9))",
+            }}
           >
             <Image
-              src={dragItem.imageUrl}
+              src={cutoutUrl(dragItem.imageUrl)}
               alt=""
               fill
               sizes={`${tileSize}px`}
-              className="object-contain p-2"
+              loading="eager"
+              className="object-contain p-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
             />
           </div>
           {drag.over && (

@@ -13,7 +13,8 @@
     "db:reset": "prisma migrate reset --force",
     "db:studio": "prisma studio",
     "pitch:deck": "node scripts/generate-pitch-deck.mjs",
-    "arch:diagram": "node scripts/build-architecture-diagram.mjs"
+    "arch:diagram": "node scripts/build-architecture-diagram.mjs",
+    "assets:cutouts": "node scripts/generate-cutouts.cjs public/assets/pizza"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -22,8 +22,9 @@ import DoughStep from "./DoughStep";
 import SizeStep from "./SizeStep";
 import OrbitStep from "./OrbitStep";
 import ReviewStep from "./ReviewStep";
-import NutritionPanel from "./NutritionPanel";
+import IngredientDetail from "./IngredientDetail";
 import BillPanel from "./BillPanel";
+import IntroOverlay from "./IntroOverlay";
 import WaitingPhase from "./WaitingPhase";
 import ServedPhase from "./ServedPhase";
 
@@ -46,6 +47,44 @@ const BUILD_STEPS: BuildStep[] = [
 
 const SIZE_ORDER: PizzaSize[] = ["SMALL", "MEDIUM", "LARGE"];
 
+function clamp(min: number, value: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+/**
+ * Tracks an element's rendered size so the pizza/orbit can fit the available box.
+ * Measures synchronously on mount (works even when the tab is occluded/throttled),
+ * then keeps up to date via ResizeObserver + window resize.
+ */
+function useElementSize<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      const r = el.getBoundingClientRect();
+      setSize((prev) =>
+        Math.abs(prev.width - r.width) < 1 && Math.abs(prev.height - r.height) < 1
+          ? prev
+          : { width: r.width, height: r.height },
+      );
+    };
+    measure();
+    let ro: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(measure);
+      ro.observe(el);
+    }
+    window.addEventListener("resize", measure);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+  return [ref, size] as const;
+}
+
 interface Props {
   tableId: string;
 }
@@ -67,8 +106,10 @@ export default function PizzaBuilder({ tableId }: Props) {
 
   const [buildStep, setBuildStep] = useState<BuildStep>("DOUGH");
   const [pizzaSize, setPizzaSize] = useState<PizzaSize>("MEDIUM");
+  const [focusedItem, setFocusedItem] = useState<MenuItem | null>(null);
 
   const canvasRef = useRef<PizzaCanvasHandle>(null);
+  const [canvasAreaRef, canvasAreaSize] = useElementSize<HTMLDivElement>();
 
   // Fetch menu
   useEffect(() => {
@@ -120,6 +161,12 @@ export default function PizzaBuilder({ tableId }: Props) {
 
   useEffect(() => () => disconnectSocket(), []);
 
+  // Reset the focused ingredient when the step changes so the detail panel
+  // falls back to that step's default.
+  useEffect(() => {
+    setFocusedItem(null);
+  }, [buildStep]);
+
   // ── Derived ───────────────────────────────────────────────────────────────
   const grouped = useMemo(() => {
     const out: Record<"BASE" | "SAUCE" | "CHEESE" | "TOPPING", MenuItem[]> = {
@@ -144,6 +191,37 @@ export default function PizzaBuilder({ tableId }: Props) {
 
   const totals = useMemo(() => computeTotals(selected), [selected]);
   const baseSelected = hasBase(selected);
+
+  // Fit the pizza + orbit to the available canvas area so the nav stays on screen.
+  const hasOrbit =
+    buildStep === "SAUCE" ||
+    buildStep === "CHEESE" ||
+    buildStep === "TOPPINGS";
+  const fit = Math.min(canvasAreaSize.width || 0, canvasAreaSize.height || 0);
+  const ringSize = clamp(300, Math.round(fit - 6), 760);
+  const orbitTile = clamp(56, Math.round(ringSize * 0.126), 96);
+  // The pizza is the hero — take as much of the available box as possible.
+  const canvasDiameter = hasOrbit
+    ? Math.round(ringSize * 0.72)
+    : fit > 0
+      ? clamp(300, Math.round(fit * 0.98), 660)
+      : 380;
+
+  // Which ingredient the left detail panel describes: whatever is hovered/focused,
+  // else a sensible default for the current step.
+  const stepDefaultItem: MenuItem | null =
+    buildStep === "DOUGH"
+      ? selectedBase ?? null
+      : buildStep === "SAUCE"
+        ? selectedSauce ?? grouped.SAUCE[0] ?? null
+        : buildStep === "CHEESE"
+          ? selectedCheese ?? grouped.CHEESE[0] ?? null
+          : buildStep === "TOPPINGS"
+            ? selectedToppings[selectedToppings.length - 1] ??
+              grouped.TOPPING[0] ??
+              null
+            : null;
+  const detailItem = focusedItem ?? stepDefaultItem;
   const canPlace =
     baseSelected && !!selectedSauce && !!selectedCheese && !placing;
 
@@ -367,6 +445,8 @@ export default function PizzaBuilder({ tableId }: Props) {
         layers={selected}
         size={pizzaSize}
         glow={isReview}
+        diameter={canvasDiameter}
+        sliceGuides={buildStep === "SIZE"}
         {...swipeProps}
         {...pinchProps}
       />
@@ -378,7 +458,10 @@ export default function PizzaBuilder({ tableId }: Props) {
           items={orbitItems}
           selectedIds={orbitSelectedIds}
           onApply={applyIngredient}
+          onFocus={setFocusedItem}
           dropTargetRef={canvasRef}
+          ringSize={ringSize}
+          tileSize={orbitTile}
         >
           {canvas}
         </RotatingOrbit>
@@ -429,67 +512,80 @@ export default function PizzaBuilder({ tableId }: Props) {
 
   // ── Layout ────────────────────────────────────────────────────────────────
   return (
-    <main className="min-h-screen bg-void text-cream px-4 py-5 md:py-8">
-      <div className="max-w-7xl mx-auto flex flex-col gap-5">
-        {/* Header */}
-        <header className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-cheese mb-1">
-              Pizza3.14 — Table {tableNum}
-            </p>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-              Build your pizza
+    <main className="forno-room font-ui relative min-h-screen lg:h-[100dvh] lg:overflow-hidden text-cream px-4 sm:px-6 py-4 flex flex-col">
+      <IntroOverlay />
+
+      {/* Grain texture over the whole room */}
+      <div className="forno-grain pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay z-0" />
+
+      <div className="relative z-10 max-w-[1200px] w-full mx-auto flex flex-col gap-3.5 flex-1 min-h-0">
+        {/* ── Header ─────────────────────────────────────────────── */}
+        <header className="flex items-center justify-between gap-4 shrink-0">
+          <div className="flex items-baseline gap-3 min-w-0">
+            <span className="text-[10px] font-mono uppercase tracking-[0.4em] text-ember/90 shrink-0">
+              Pizza<span className="text-cheese">3.14</span>
+            </span>
+            <span className="hidden sm:block h-4 w-px bg-cream/15 shrink-0" />
+            <h1 className="font-display text-2xl md:text-[28px] leading-none tracking-tight text-cream truncate">
+              Build your{" "}
+              <span className="italic text-gradient-forno">pizza</span>
             </h1>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            {/* Compact combo chip */}
+            {combo && !comboDismissed && !isReview && (
+              <div className="hidden sm:flex items-center gap-2 pl-3 pr-1.5 py-1.5 rounded-full forno-panel">
+                <span className="text-sm">🔥</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-cheese/90 whitespace-nowrap">
+                  Famous&nbsp;combo
+                </span>
+                <button
+                  onClick={applyCombo}
+                  className="px-3 py-1 rounded-full forno-cta text-void text-[11px] font-bold tracking-wide transition-all"
+                >
+                  Apply
+                </button>
+                <button
+                  onClick={() => setComboDismissed(true)}
+                  aria-label="Dismiss combo suggestion"
+                  className="w-6 h-6 rounded-full text-cream/40 hover:text-cream hover:bg-cream/10 transition-colors text-sm leading-none"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-cream/40 whitespace-nowrap">
+              Table&nbsp;
+              <span className="text-cream/80">
+                {String(tableNum).padStart(2, "0")}
+              </span>
+            </span>
           </div>
         </header>
 
         {menuError && (
-          <div className="px-4 py-3 rounded-xl bg-red-500/15 border border-red-500/40 text-red-400 text-sm">
+          <div className="px-4 py-3 rounded-xl bg-red-500/15 border border-red-500/40 text-red-400 text-sm shrink-0">
             {menuError}
           </div>
         )}
 
-        {/* Combo mini-banner */}
-        {combo && !comboDismissed && !isReview && (
-          <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-glass border border-ember/40">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-cheese shrink-0">
-                🔥 Most Famous Combo
-              </span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cheese/15 text-cheese border border-cheese/30 shrink-0">
-                Ordered {combo.count}×
-              </span>
-              <span className="text-xs text-cream/70 truncate">
-                {combo.ingredients.map((i) => i.name).join(" · ")}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={applyCombo}
-                className="px-3 py-1.5 rounded-full bg-ember text-void text-xs font-bold hover:bg-cheese transition-colors"
-              >
-                Apply
-              </button>
-              <button
-                onClick={() => setComboDismissed(true)}
-                aria-label="Dismiss combo suggestion"
-                className="w-7 h-7 rounded-full text-smoke hover:text-cream hover:bg-ash/40 transition-colors text-base leading-none"
-              >
-                ×
-              </button>
-            </div>
-          </div>
-        )}
-
-        <BuildStepper
-          current={buildStep}
-          completed={completedSteps}
-          onJump={jumpTo}
-        />
+        <div className="shrink-0">
+          <BuildStepper
+            current={buildStep}
+            completed={completedSteps}
+            onJump={jumpTo}
+          />
+        </div>
 
         {isReview ? (
-          <div className="flex flex-col items-center gap-6">
-            {renderCanvasArea()}
+          <div className="flex-1 min-h-0 lg:overflow-y-auto flex flex-col items-center gap-6 py-1">
+            <div
+              ref={canvasAreaRef}
+              className="w-full flex-1 min-h-0 flex items-center justify-center overflow-hidden"
+            >
+              {renderCanvasArea()}
+            </div>
             <ReviewStep
               base={selectedBase}
               sauce={selectedSauce}
@@ -505,56 +601,77 @@ export default function PizzaBuilder({ tableId }: Props) {
             />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr_240px] gap-6 items-start">
-            {/* Left: Nutrition */}
-            <aside className="lg:sticky lg:top-4 order-2 lg:order-1">
-              <NutritionPanel totals={totals} />
-            </aside>
+          <>
+            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[220px_1fr_232px] lg:[grid-template-rows:minmax(0,1fr)] gap-4 lg:gap-5 items-start lg:items-stretch">
+              {/* Left: contextual ingredient / size detail */}
+              <aside className="order-2 lg:order-1 lg:self-center">
+                <IngredientDetail
+                  item={detailItem}
+                  sizeMode={buildStep === "SIZE"}
+                  size={pizzaSize}
+                />
+              </aside>
 
-            {/* Center: Canvas + step copy + nav */}
-            <section className="order-1 lg:order-2 flex flex-col items-center gap-5">
-              <div className="w-full flex justify-center">
-                {renderCanvasArea()}
+              {/* Center: the hero pizza + floating step caption */}
+              <section className="order-1 lg:order-2 relative flex flex-col items-center min-h-0">
+                <div
+                  ref={canvasAreaRef}
+                  className="w-full flex-1 min-h-0 flex items-center justify-center overflow-hidden"
+                >
+                  {renderCanvasArea()}
+                </div>
+                <div className="w-full max-w-lg shrink-0 pt-1">
+                  {renderStepBlurb()}
+                </div>
+              </section>
+
+              {/* Right: Bill */}
+              <aside className="order-3 lg:self-center">
+                <BillPanel
+                  items={selected}
+                  totals={totals}
+                  onRemove={removeById}
+                  locked={!!orderId}
+                />
+              </aside>
+            </div>
+
+            {/* ── Full-width action bar ─────────────────────────────── */}
+            <div className="shrink-0 flex items-center justify-between gap-3 rounded-2xl forno-panel px-3 py-2.5">
+              <button
+                onClick={goBack}
+                disabled={stepIdx <= 0}
+                className="px-4 py-2.5 rounded-xl text-cream/70 text-sm font-medium hover:text-cream hover:bg-cream/5 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+              >
+                ← Back
+              </button>
+
+              <div className="flex items-center gap-1.5">
+                {BUILD_STEPS.map((s, i) => (
+                  <span
+                    key={s}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      i === stepIdx
+                        ? "w-6 bg-ember"
+                        : i < stepIdx
+                          ? "w-1.5 bg-ember/50"
+                          : "w-1.5 bg-cream/15"
+                    }`}
+                  />
+                ))}
               </div>
 
-              <div className="w-full max-w-xl">{renderStepBlurb()}</div>
-
-              {/* Footer nav */}
-              <div className="flex items-center justify-between gap-3 w-full max-w-md pt-2">
-                <button
-                  onClick={goBack}
-                  disabled={stepIdx <= 0}
-                  className="px-4 py-2.5 rounded-xl border border-ash text-smoke text-sm hover:border-cream/40 hover:text-cream transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  ← Back
-                </button>
-
-                <span className="text-[10px] font-mono uppercase tracking-widest text-smoke">
-                  Step {stepIdx + 1} of {BUILD_STEPS.length}
-                </span>
-
-                <button
-                  onClick={goNext}
-                  disabled={!canAdvance(buildStep)}
-                  className="px-5 py-2.5 rounded-xl bg-ember text-void text-sm font-bold hover:bg-cheese transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  {stepIdx === BUILD_STEPS.length - 2
-                    ? "Review Order →"
-                    : "Next →"}
-                </button>
-              </div>
-            </section>
-
-            {/* Right: Bill */}
-            <aside className="lg:sticky lg:top-4 order-3">
-              <BillPanel
-                items={selected}
-                totals={totals}
-                onRemove={removeById}
-                locked={!!orderId}
-              />
-            </aside>
-          </div>
+              <button
+                onClick={goNext}
+                disabled={!canAdvance(buildStep)}
+                className="px-6 py-2.5 rounded-xl forno-cta text-void text-sm font-bold tracking-wide transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+              >
+                {stepIdx === BUILD_STEPS.length - 2
+                  ? "Review Order →"
+                  : "Next →"}
+              </button>
+            </div>
+          </>
         )}
       </div>
     </main>

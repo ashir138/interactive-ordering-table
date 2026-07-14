@@ -14,16 +14,19 @@ export default function OrbitStep({
   selectedNoun,
 }: Props) {
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      <p className="text-[10px] font-mono uppercase tracking-widest text-cheese">
+    <div className="flex flex-col items-center gap-1.5 text-center animate-rise">
+      <p className="text-[9.5px] font-mono uppercase tracking-[0.3em] text-cheese/80">
         {stepLabel}
       </p>
-      <p className="text-xs text-cream/65 text-center max-w-md">{helper}</p>
+      <p className="text-sm text-cream/70 max-w-md leading-snug font-ui">
+        {helper}
+      </p>
       {typeof selectedCount === "number" && (
-        <p className="text-[10px] font-mono text-ember mt-0.5">
+        <span className="mt-1 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-ember/12 border border-ember/30 text-[10px] font-mono uppercase tracking-widest text-ember">
+          <span className="w-1 h-1 rounded-full bg-ember animate-pulse" />
           {selectedCount} {selectedNoun}
-          {selectedCount === 1 ? "" : "s"} on the pizza
-        </p>
+          {selectedCount === 1 ? "" : "s"} added
+        </span>
       )}
     </div>
   );

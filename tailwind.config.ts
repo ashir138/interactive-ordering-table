@@ -72,6 +72,9 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "monospace"],
+        // Premium tabletop pairing (scoped to builder components via font-display / font-ui)
+        display: ["var(--font-display)", "Georgia", "serif"],
+        ui: ["var(--font-ui)", "system-ui", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {

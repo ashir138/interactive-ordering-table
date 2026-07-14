@@ -18,6 +18,16 @@ export const SIZE_SHORT_LABELS: Record<PizzaSize, string> = {
   LARGE: "L",
 };
 
+// Display metadata for the size step (diameter + serving guidance).
+export const SIZE_META: Record<
+  PizzaSize,
+  { diameter: string; feeds: string }
+> = {
+  SMALL: { diameter: '9"', feeds: "Feeds 1–2" },
+  MEDIUM: { diameter: '12"', feeds: "Feeds 3–4" },
+  LARGE: { diameter: '15"', feeds: "Feeds 5–6" },
+};
+
 // Tailwind size classes for the circular pizza canvas container.
 // Desktop-first — canvas is the hero of the tabletop experience.
 export const SIZE_CANVAS_CLASS: Record<PizzaSize, string> = {

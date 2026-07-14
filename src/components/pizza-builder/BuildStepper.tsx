@@ -21,7 +21,7 @@ export default function BuildStepper({ current, completed, onJump }: Props) {
   return (
     <nav
       aria-label="Build progress"
-      className="w-full bg-glass border border-ash rounded-2xl p-4"
+      className="w-full forno-panel rounded-2xl px-4 py-2.5"
     >
       <ol className="flex items-center justify-between gap-1 sm:gap-2">
         {STEPS.map((step, i) => {
@@ -39,22 +39,22 @@ export default function BuildStepper({ current, completed, onJump }: Props) {
                 onClick={() => isClickable && onJump(step.id)}
                 disabled={!isClickable}
                 aria-current={isCurrent ? "step" : undefined}
-                className={`flex items-center gap-2 min-w-0 group focus:outline-none focus-visible:ring-2 focus-visible:ring-ember rounded-xl px-1 py-1
+                className={`flex items-center gap-2.5 min-w-0 group focus:outline-none focus-visible:ring-2 focus-visible:ring-ember/70 rounded-xl px-1 py-1
                   ${isClickable ? "cursor-pointer" : "cursor-default"}`}
               >
                 <span
-                  className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all
+                  className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-all duration-300
                     ${isCurrent
-                      ? "border-ember bg-ember/25 text-ember"
+                      ? "bg-gradient-to-b from-ember to-tomato text-void shadow-[0_0_18px_hsl(24_95%_53%/0.55)]"
                       : isDone
-                        ? "border-cream/40 bg-cream/10 text-cream/70 group-hover:border-ember/60 group-hover:text-ember"
-                        : "border-ash bg-void text-ash"}`}
+                        ? "bg-ember/15 text-ember border border-ember/40 group-hover:bg-ember/25"
+                        : "bg-cream/5 text-cream/30 border border-cream/10"}`}
                 >
                   {isDone ? "✓" : i + 1}
                 </span>
                 <span
-                  className={`hidden sm:inline text-[11px] font-mono uppercase tracking-widest truncate
-                    ${isCurrent ? "text-ember" : isDone ? "text-cream/70" : "text-ash"}`}
+                  className={`hidden sm:inline text-[10.5px] font-mono uppercase tracking-[0.2em] truncate transition-colors
+                    ${isCurrent ? "text-cream" : isDone ? "text-cream/55" : "text-cream/25"}`}
                 >
                   {step.label}
                 </span>
@@ -64,8 +64,8 @@ export default function BuildStepper({ current, completed, onJump }: Props) {
               {i < STEPS.length - 1 && (
                 <span
                   aria-hidden
-                  className={`flex-1 mx-1 sm:mx-2 h-px min-w-[8px]
-                    ${isDone ? "bg-ember/60" : "bg-ash/60"}`}
+                  className={`flex-1 mx-1.5 sm:mx-2.5 h-px min-w-[8px] transition-colors duration-300
+                    ${isDone ? "bg-ember/50" : "bg-cream/10"}`}
                 />
               )}
             </li>

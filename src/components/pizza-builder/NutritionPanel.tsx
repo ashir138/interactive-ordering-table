@@ -62,26 +62,23 @@ export default function NutritionPanel({ totals }: Props) {
   }, [totals.calories, totals.protein, totals.fats, totals.carbs]);
 
   return (
-    <div
-      ref={scope}
-      className="bg-glass border border-ash rounded-2xl p-4 backdrop-blur-md shadow-[0_8px_30px_-10px_rgba(0,0,0,0.6)]"
-    >
-      <div className="flex items-center gap-2 mb-3">
-        <span className="w-1.5 h-1.5 rounded-full bg-cheese animate-pulse" />
-        <p className="text-[10px] font-mono uppercase tracking-widest text-cheese">
+    <div ref={scope} className="forno-panel rounded-2xl p-4">
+      <div className="flex items-center gap-2 mb-3.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-cheese animate-pulse shadow-[0_0_8px_hsl(42_92%_62%)]" />
+        <p className="text-[9.5px] font-mono uppercase tracking-[0.25em] text-cheese/90">
           Live Nutrition
         </p>
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        {tiles.map((tile) => (
+      <div className="flex flex-col divide-y divide-cream/8">
+        {tiles.map((tile, i) => (
           <div
             key={tile.label}
-            className="bg-void/60 border border-ash/60 rounded-xl px-3 py-2"
+            className={`flex items-baseline justify-between gap-2 py-2.5 ${i === 0 ? "pt-0" : ""}`}
           >
-            <p className="text-[9px] font-mono uppercase tracking-widest text-smoke mb-0.5">
+            <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-cream/45">
               {tile.label}
-            </p>
-            <p className="text-base font-bold text-cream tabular-nums leading-tight">
+            </span>
+            <span className="font-display text-xl font-semibold text-cream tabular-nums leading-none">
               <span
                 ref={(el) => {
                   if (el) numberRefs.current.set(tile.label, el);
@@ -89,10 +86,10 @@ export default function NutritionPanel({ totals }: Props) {
               >
                 {tile.value.toFixed(tile.decimals)}
               </span>
-              <span className="text-[10px] text-smoke ml-1 font-normal">
+              <span className="text-[10px] text-cream/35 ml-1 font-normal font-ui">
                 {tile.unit}
               </span>
-            </p>
+            </span>
           </div>
         ))}
       </div>

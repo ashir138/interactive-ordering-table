@@ -10,23 +10,30 @@ import {
 import gsap from "gsap";
 import Image from "next/image";
 import { assignZIndexes } from "@/lib/layer-rules";
+import { cutoutUrl } from "@/lib/pizza-assets";
 import type { MenuItem, LayerType } from "@/types";
 
 export type PizzaSize = "SMALL" | "MEDIUM" | "LARGE";
 
-// Per-layer-type rendering config.
-// containerInset: how far to pull each side in (% string). Keeps sauce/cheese within crust area
-// and makes toppings appear at realistic pizza proportions.
-// imageScale: additional CSS scale on the <img> itself — further shrinks toppings.
-const LAYER_CONFIG: Record<
-  LayerType,
-  { containerInset: string; imageScale?: number }
-> = {
-  BASE:    { containerInset: "0" },
-  SAUCE:   { containerInset: "5%" },
-  CHEESE:  { containerInset: "6%" },
-  TOPPING: { containerInset: "12%", imageScale: 0.75 },
+// Per-layer-type placement for a photoreal stacked pizza.
+// Layers use transparent-background cutout PNGs (see cutoutUrl) rendered in full
+// colour — no blend tricks, so sauce/cheese show through the gaps between toppings.
+// `object-cover` lets each layer spread edge-to-edge; toppings get a per-item
+// rotation so multiple layers interleave instead of aligning identically.
+// Toppings sit at a larger inset than sauce/cheese so the whole 12-piece photo
+// renders a little smaller and tucks inside the pizza rather than reaching the
+// crust — pieces stay intact, just scaled down to fit the pie.
+const LAYER_CONFIG: Record<LayerType, { inset: string }> = {
+  BASE:    { inset: "0%" },
+  SAUCE:   { inset: "7%" },
+  CHEESE:  { inset: "8%" },
+  TOPPING: { inset: "16%" },
 };
+
+/** Deterministic angle per topping so stacked toppings don't align identically. */
+function toppingAngle(id: number): number {
+  return (id * 47) % 360;
+}
 
 const SIZE_SCALE: Record<PizzaSize, number> = {
   SMALL: 0.82,
@@ -38,6 +45,10 @@ interface Props {
   layers: MenuItem[];
   size?: PizzaSize;
   glow?: boolean;
+  /** Outer diameter of the pizza dish in px. Falls back to 440 for legacy callers. */
+  diameter?: number;
+  /** Show dotted 8-slice cutter guides over the dish (used on the size step). */
+  sliceGuides?: boolean;
   /** Enables horizontal swipe on the canvas. -1 = swipe left (next), 1 = swipe right (prev) */
   onSwipe?: (dir: -1 | 1) => void;
   /** Enables pinch + wheel resize. -1 = shrink, 1 = grow */
@@ -55,7 +66,7 @@ const WHEEL_THRESHOLD = 80; // accumulated deltaY to trigger size jump
 const PINCH_THRESHOLD = 1.25; // ratio of pinch distance to trigger size jump
 
 const PizzaCanvas = forwardRef<PizzaCanvasHandle, Props>(function PizzaCanvas(
-  { layers, size = "MEDIUM", glow = false, onSwipe, onPinch, swipeHint },
+  { layers, size = "MEDIUM", glow = false, diameter = 440, sliceGuides = false, onSwipe, onPinch, swipeHint },
   forwardedRef,
 ) {
   const dishRef = useRef<HTMLDivElement>(null);
@@ -246,40 +257,71 @@ const PizzaCanvas = forwardRef<PizzaCanvasHandle, Props>(function PizzaCanvas(
     <div
       className="relative flex items-center justify-center"
       style={{
-        width: 440,
-        height: 440,
+        width: diameter,
+        height: diameter,
         maxWidth: "92vw",
         maxHeight: "92vw",
       }}
     >
+      {/* Warm overhead spotlight pooled behind the pie */}
+      <div
+        className="forno-spotlight animate-spot absolute rounded-full pointer-events-none"
+        style={{ inset: "-14%", zIndex: 0 }}
+      />
+
+      {/* Dark stone serving board */}
+      <div
+        className="forno-board absolute rounded-full pointer-events-none"
+        style={{ inset: "-6%", zIndex: 0 }}
+      />
+
+      {/* Soft floor shadow the pie casts on the board */}
+      <div
+        className="absolute rounded-[50%] pointer-events-none"
+        style={{
+          bottom: "-3%",
+          width: "78%",
+          height: "12%",
+          zIndex: 0,
+          background:
+            "radial-gradient(ellipse at center, rgba(0,0,0,0.65) 0%, transparent 72%)",
+          filter: "blur(6px)",
+        }}
+      />
+
       <div
         ref={dishRef}
-        className={`relative w-full h-full rounded-full bg-void/70 border-4 border-ash/60 shadow-[0_30px_80px_-20px_rgba(255,107,53,0.25)] flex items-center justify-center overflow-hidden transition-transform duration-500
+        className={`relative w-full h-full rounded-full isolate flex items-center justify-center overflow-hidden transition-transform duration-500
           ${onSwipe || onPinch ? "touch-none cursor-grab active:cursor-grabbing" : ""}`}
-        style={{ transform: `scale(${scale})` }}
+        style={{ transform: `scale(${scale})`, zIndex: 1 }}
         aria-label="Pizza preview"
         role="img"
         data-pizza-canvas
       >
-        {/* Plate concentric rings */}
-        <div className="absolute inset-2 rounded-full border border-ash/40 pointer-events-none" />
-        <div className="absolute inset-6 rounded-full border border-ash/30 pointer-events-none" />
+        {/* Warm dough-toned disc so the pie reads even before a base is chosen */}
+        <div
+          className="absolute inset-0 rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle at 50% 42%, hsl(36 45% 30%) 0%, hsl(28 40% 18%) 60%, hsl(24 35% 12%) 100%)",
+          }}
+        />
 
         {/* Empty hint */}
         {layers.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <p className="text-xs font-mono uppercase tracking-[0.3em] text-smoke/60 text-center">
-              Pick a base
-              <br />
-              to start
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+            <p className="text-[11px] font-mono uppercase tracking-[0.4em] text-cream/50 text-center leading-relaxed">
+              Choose
+              <br />a base
             </p>
           </div>
         )}
 
-        {/* Stacked layers — opacity managed exclusively by GSAP */}
+        {/* Stacked layers — full-colour transparent cutouts, opacity via GSAP */}
         {stacked.map((item) => {
           const cfg = LAYER_CONFIG[item.layerType] ?? LAYER_CONFIG.TOPPING;
-          const inset = cfg.containerInset;
+          const inset = cfg.inset;
+          const isTopping = item.layerType === "TOPPING";
           return (
             <div
               key={item.id}
@@ -294,20 +336,61 @@ const PizzaCanvas = forwardRef<PizzaCanvasHandle, Props>(function PizzaCanvas(
                 right: inset,
                 bottom: inset,
                 zIndex: item.zIndex,
+                transform: isTopping
+                  ? `rotate(${toppingAngle(item.id)}deg)`
+                  : undefined,
+                filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.4))",
               }}
             >
               <Image
-                src={item.imageUrl}
+                src={cutoutUrl(item.imageUrl)}
                 alt={`${item.name} layer`}
                 fill
-                sizes="440px"
-                className="object-contain pointer-events-none select-none"
-                style={cfg.imageScale ? { transform: `scale(${cfg.imageScale})` } : undefined}
-                priority={item.layerType === "BASE"}
+                sizes={`${diameter}px`}
+                className="object-contain rounded-full pointer-events-none select-none"
+                loading="eager"
               />
             </div>
           );
         })}
+
+        {/* Dotted 8-slice cutter guides (size step) */}
+        {sliceGuides && layers.length > 0 && (
+          <svg
+            className="absolute inset-[9%] pointer-events-none z-30 opacity-70"
+            viewBox="0 0 100 100"
+            aria-hidden
+          >
+            {Array.from({ length: 8 }).map((_, i) => {
+              const a = (i / 8) * Math.PI * 2;
+              return (
+                <line
+                  key={i}
+                  x1={50}
+                  y1={50}
+                  x2={50 + 50 * Math.cos(a)}
+                  y2={50 + 50 * Math.sin(a)}
+                  stroke="hsl(8 75% 55%)"
+                  strokeWidth={0.5}
+                  strokeDasharray="1.5 2"
+                  strokeLinecap="round"
+                />
+              );
+            })}
+          </svg>
+        )}
+
+        {/* Oven-baked char + warm rim baked into the crust edge */}
+        <div className="forno-char absolute inset-0 rounded-full pointer-events-none z-40" />
+
+        {/* Glossy overhead highlight */}
+        <div
+          className="absolute inset-0 rounded-full pointer-events-none z-40"
+          style={{
+            background:
+              "radial-gradient(ellipse 55% 40% at 42% 24%, hsl(45 100% 85% / 0.14) 0%, transparent 60%)",
+          }}
+        />
 
         {/* Swipe hint overlay arrows */}
         {onSwipe && swipeHint && (
@@ -316,7 +399,7 @@ const PizzaCanvas = forwardRef<PizzaCanvasHandle, Props>(function PizzaCanvas(
               type="button"
               onClick={() => onSwipe(1)}
               aria-label={swipeHint.left}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-void/80 border border-ash text-cream/80 hover:text-ember hover:border-ember transition-colors flex items-center justify-center text-lg font-bold backdrop-blur"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-50 w-11 h-11 rounded-full bg-black/55 border border-cream/20 text-cream hover:text-ember hover:border-ember/70 transition-colors flex items-center justify-center text-xl font-light backdrop-blur-md shadow-lg"
             >
               ‹
             </button>
@@ -324,12 +407,12 @@ const PizzaCanvas = forwardRef<PizzaCanvasHandle, Props>(function PizzaCanvas(
               type="button"
               onClick={() => onSwipe(-1)}
               aria-label={swipeHint.right}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-void/80 border border-ash text-cream/80 hover:text-ember hover:border-ember transition-colors flex items-center justify-center text-lg font-bold backdrop-blur"
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-50 w-11 h-11 rounded-full bg-black/55 border border-cream/20 text-cream hover:text-ember hover:border-ember/70 transition-colors flex items-center justify-center text-xl font-light backdrop-blur-md shadow-lg"
             >
               ›
             </button>
-            <p className="absolute bottom-3 left-1/2 -translate-x-1/2 z-50 text-[9px] font-mono uppercase tracking-[0.25em] text-smoke pointer-events-none">
-              Swipe to switch
+            <p className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 text-[9px] font-mono uppercase tracking-[0.3em] text-cream/60 pointer-events-none">
+              swipe to switch
             </p>
           </>
         )}
