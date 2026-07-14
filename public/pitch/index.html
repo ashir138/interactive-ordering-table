@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Pizza 3.14 — Pitch Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&display=swap" rel="stylesheet" />
+<style>
+  /* Self-contained app fonts (work offline). Fraunces (above) is a progressive
+     enhancement for display headings; falls back to Geist when offline. */
+  @font-face{font-family:'Geist';src:url('fonts/GeistVF.woff') format('woff');font-weight:100 900;font-display:swap;}
+  @font-face{font-family:'Geist Mono';src:url('fonts/GeistMonoVF.woff') format('woff');font-weight:100 900;font-display:swap;}
+
+  :root{
+    --bg:#0d0a08; --bg2:#17100c; --panel:rgba(30,20,14,.55);
+    --ink:#f4ece1; --muted:#a89a8b; --faint:rgba(244,236,225,.10);
+    --ember:#ff7a1a; --ember2:#f9600a; --amber:#f3c04a; --tomato:#e0533a; --basil:#63c26f;
+    --sans:'Geist',system-ui,-apple-system,sans-serif;
+    --mono:'Geist Mono',ui-monospace,monospace;
+    --display:'Fraunces','Geist',Georgia,serif;
+    --edge:2rem;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:var(--sans); color:var(--ink); background:var(--bg);
+    overflow:hidden; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+
+  /* ── Room backdrop ─────────────────────────────────────────── */
+  .room{position:fixed; inset:0; z-index:0;
+    background:
+      radial-gradient(120% 80% at 50% -12%, rgba(255,122,26,.12) 0%, transparent 52%),
+      radial-gradient(90% 70% at 88% 108%, rgba(224,83,58,.10) 0%, transparent 55%),
+      linear-gradient(180deg,#17110c 0%, #0d0a08 60%, #0a0705 100%);
+  }
+  .grain{position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.055; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  .vignette{position:fixed; inset:0; z-index:1; pointer-events:none;
+    box-shadow:inset 0 0 220px rgba(0,0,0,.7);}
+
+  /* ── Deck / slides ─────────────────────────────────────────── */
+  .deck{position:relative; z-index:2; height:100%;}
+  .slide{
+    position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center;
+    padding:clamp(2rem,6vh,5rem) clamp(2rem,7vw,7rem);
+    opacity:0; visibility:hidden; transform:scale(.985); pointer-events:none;
+    transition:opacity .6s ease, transform .6s ease, visibility .6s;
+  }
+  .slide.active{opacity:1; visibility:visible; transform:none; pointer-events:auto;}
+  .slide.prev{transform:scale(1.015);}
+
+  .wrap{width:100%; max-width:1180px; margin:0 auto;}
+
+  /* Reveal animation for children (staggered via --d) */
+  .r{opacity:0; transform:translateY(22px); transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); transition-delay:var(--d,0s);}
+  .slide.active .r{opacity:1; transform:none;}
+  .r.blur{filter:blur(6px);} .slide.active .r.blur{filter:none;}
+
+  /* ── Typographic system ────────────────────────────────────── */
+  .eyebrow{font-family:var(--mono); font-size:.72rem; letter-spacing:.34em; text-transform:uppercase; color:var(--amber);
+    display:inline-flex; align-items:center; gap:.7rem;}
+  .eyebrow::before{content:""; width:26px; height:1px; background:linear-gradient(90deg,var(--ember),transparent);}
+  h1{font-family:var(--display); font-weight:600; line-height:.98; letter-spacing:-.02em;}
+  h2{font-family:var(--display); font-weight:600; font-size:clamp(2rem,4.6vw,3.5rem); line-height:1.02; letter-spacing:-.02em;}
+  .lead{font-size:clamp(1rem,1.5vw,1.28rem); color:var(--muted); line-height:1.55; max-width:56ch;}
+  .ital{font-style:italic; font-family:var(--display);}
+  .amber{color:var(--amber);} .ember{color:var(--ember);} .basil{color:var(--basil);} .cream{color:var(--ink);}
+  .grad{background:linear-gradient(100deg,#ffe1b0,#ffab4d 42%,#ff6a1a);-webkit-background-clip:text;background-clip:text;color:transparent;}
+
+  /* ── Cards / chips ─────────────────────────────────────────── */
+  .grid{display:grid; gap:1.1rem;}
+  .card{background:linear-gradient(160deg,rgba(38,26,18,.72),rgba(18,12,9,.6)); border:1px solid rgba(243,192,74,.16);
+    border-radius:18px; padding:1.4rem 1.5rem; backdrop-filter:blur(8px); position:relative; overflow:hidden;}
+  .card .ic{font-size:1.5rem; margin-bottom:.7rem; display:block; filter:drop-shadow(0 3px 8px rgba(255,122,26,.4));}
+  .card h3{font-size:1.06rem; font-weight:650; margin-bottom:.4rem; letter-spacing:-.01em;}
+  .card p{font-size:.92rem; color:var(--muted); line-height:1.5;}
+  .card .tag{position:absolute; top:0; right:0; font-family:var(--mono); font-size:.6rem; letter-spacing:.2em; color:var(--ember);
+    padding:.35rem .6rem; opacity:.65;}
+  .pill{display:inline-flex; align-items:center; gap:.5rem; font-family:var(--mono); font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink); background:rgba(255,122,26,.12); border:1px solid rgba(255,122,26,.3); border-radius:999px; padding:.5rem .9rem;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--ember);box-shadow:0 0 10px var(--ember);}
+
+  .stat .big{font-family:var(--display); font-weight:600; font-size:clamp(2.2rem,5vw,3.6rem); line-height:1; letter-spacing:-.02em; color:var(--ink);}
+  .stat .lbl{font-family:var(--mono); font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-top:.5rem;}
+
+  /* ── Hero pizza + orbit ────────────────────────────────────── */
+  .stage{position:relative; width:min(38vh,340px); aspect-ratio:1; margin:0 auto;}
+  .pie{position:absolute; inset:12%; border-radius:50%;
+    background:radial-gradient(circle at 50% 42%, #d9a441, #7a4a1e 74%, #4a2c14 100%);
+    box-shadow:inset 0 0 26px rgba(60,26,8,.8), 0 24px 60px -12px rgba(255,110,30,.4);}
+  .pie::after{content:""; position:absolute; inset:9%; border-radius:50%;
+    background:radial-gradient(circle at 46% 40%, rgba(224,60,40,.9), rgba(150,30,20,.85) 62%, transparent 63%);}
+  .pie .chip{position:absolute; width:15%; aspect-ratio:1; border-radius:50%; background:#c0301f; box-shadow:0 2px 4px rgba(0,0,0,.5);}
+  .heat{position:absolute; inset:0; border-radius:50%;
+    background:conic-gradient(from 0deg, transparent 0 58%, rgba(243,192,74,.9) 82%, rgba(255,122,26,.3) 93%, transparent 100%);
+    -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+            mask:radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+    animation:spin 8s linear infinite;}
+  .orbit{position:absolute; inset:-6%; animation:spin 26s linear infinite;}
+  .orbit .o{position:absolute; top:50%; left:50%; width:44px; height:44px; margin:-22px; border-radius:50%;
+    background:linear-gradient(160deg,rgba(40,28,18,.95),rgba(14,10,8,.95)); border:1px solid rgba(243,192,74,.35);
+    display:grid; place-items:center; font-size:1.15rem; box-shadow:0 6px 18px rgba(0,0,0,.5);}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+  .floaty{animation:float 6s ease-in-out infinite;}
+
+  /* ── Flow (how it works) ───────────────────────────────────── */
+  .flow{display:flex; align-items:stretch; gap:.6rem; flex-wrap:wrap;}
+  .step{flex:1 1 0; min-width:150px; background:var(--panel); border:1px solid var(--faint); border-radius:16px; padding:1.2rem 1rem; position:relative;}
+  .step .n{font-family:var(--mono); font-size:.7rem; color:var(--ember); letter-spacing:.2em;}
+  .step .t{font-family:var(--display); font-size:1.15rem; margin:.5rem 0 .3rem;}
+  .step p{font-size:.82rem; color:var(--muted); line-height:1.45;}
+  .step .em{font-size:1.4rem; margin-bottom:.5rem; display:block;}
+
+  /* ── Market donut ──────────────────────────────────────────── */
+  .market{display:grid; grid-template-columns:1fr 1fr; gap:2.5rem; align-items:center;}
+  .rings{position:relative; width:min(42vh,380px); aspect-ratio:1; margin:0 auto;}
+  .ring{position:absolute; border-radius:50%; display:flex; align-items:flex-start; justify-content:center;
+    transform:scale(.3); opacity:0; transition:transform .9s cubic-bezier(.16,1,.3,1), opacity .7s;}
+  .slide.active .ring{transform:scale(1); opacity:1;}
+  .ring.tam{inset:0; background:radial-gradient(circle,rgba(255,122,26,.10),rgba(255,122,26,.04)); border:1px solid rgba(255,122,26,.35); transition-delay:.1s;}
+  .ring.sam{inset:19%; background:radial-gradient(circle,rgba(243,192,74,.12),rgba(243,192,74,.05)); border:1px solid rgba(243,192,74,.4); transition-delay:.32s;}
+  .ring.som{inset:37%; background:radial-gradient(circle,rgba(99,194,111,.16),rgba(99,194,111,.06)); border:1px solid rgba(99,194,111,.5); transition-delay:.54s;}
+  .ring .rl{font-family:var(--mono); font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; margin-top:.7rem; color:var(--ink); opacity:.85;}
+
+  /* ── Comparison table ──────────────────────────────────────── */
+  .cmp{width:100%; border-collapse:collapse; font-size:.9rem;}
+  .cmp th,.cmp td{padding:.85rem 1rem; text-align:left; border-bottom:1px solid var(--faint);}
+  .cmp th{font-family:var(--mono); font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); font-weight:500;}
+  .cmp td.mark{color:var(--muted);} .cmp .yes{color:var(--basil); font-weight:600;} .cmp .no{color:#8a6a5a;}
+  .cmp tr.us td{background:rgba(255,122,26,.08); color:var(--ink);} .cmp tr.us td:first-child{color:var(--ember); font-weight:650;}
+
+  /* ── Chrome: progress, dots, nav, footer ───────────────────── */
+  .progress{position:fixed; top:0; left:0; height:3px; z-index:20; background:linear-gradient(90deg,var(--ember),var(--amber));
+    box-shadow:0 0 12px var(--ember); transition:width .5s ease; width:0;}
+  .foot{position:fixed; bottom:1.1rem; left:var(--edge); right:var(--edge); z-index:15; display:flex; justify-content:space-between; align-items:center;
+    font-family:var(--mono); font-size:.66rem; letter-spacing:.18em; text-transform:uppercase; color:rgba(244,236,225,.4);}
+  .foot .brand{color:var(--amber);}
+  .dots{position:fixed; bottom:1.1rem; left:50%; transform:translateX(-50%); z-index:16; display:flex; gap:.5rem;}
+  .dots button{width:8px;height:8px;border-radius:50%;border:0;background:rgba(244,236,225,.22);cursor:pointer;padding:0;transition:.3s;}
+  .dots button.on{background:var(--ember); box-shadow:0 0 8px var(--ember); transform:scale(1.25);}
+  .nav{position:fixed; z-index:16; bottom:1.4rem; right:var(--edge); display:flex; gap:.5rem;}
+  .nav button, .fs{width:38px;height:38px;border-radius:11px;border:1px solid var(--faint);background:rgba(20,14,10,.6);color:var(--ink);
+    cursor:pointer;font-size:1rem;display:grid;place-items:center;transition:.2s;backdrop-filter:blur(6px);}
+  .nav button:hover,.fs:hover{border-color:var(--ember);color:var(--ember);}
+  .fs{position:fixed; top:1.1rem; right:var(--edge); z-index:16; width:34px;height:34px;font-size:.9rem;}
+  .hint{position:fixed; bottom:1.15rem; left:var(--edge); z-index:16;}
+
+  .divider{height:1px;background:linear-gradient(90deg,rgba(243,192,74,.5),transparent); margin:1.4rem 0;}
+  small.note{font-family:var(--mono); font-size:.6rem; letter-spacing:.1em; color:rgba(244,236,225,.35); text-transform:uppercase;}
+
+  @media (max-width:820px){
+    .market{grid-template-columns:1fr;} .two{grid-template-columns:1fr!important;}
+    .foot .brand{display:none;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .r{transition:none;} .heat,.orbit,.floaty{animation:none;}
+  }
+</style>
+</head>
+<body>
+  <div class="room"></div>
+  <div class="grain"></div>
+  <div class="vignette"></div>
+  <div class="progress" id="prog"></div>
+
+  <main class="deck" id="deck">
+
+    <!-- 1 · TITLE -->
+    <section class="slide" data-name="Cover">
+      <div class="wrap" style="display:grid;grid-template-columns:1.15fr .85fr;gap:3rem;align-items:center;">
+        <div>
+          <span class="eyebrow r" style="--d:.05s">World Startup Championship · 2026</span>
+          <h1 class="r" style="--d:.15s;font-size:clamp(3.2rem,8vw,6.4rem);margin:1.2rem 0 .4rem;">
+            Pizza&nbsp;<span class="grad">3.14</span>
+          </h1>
+          <p class="r" style="--d:.28s;font-family:var(--display);font-style:italic;font-size:clamp(1.2rem,2.4vw,1.9rem);color:var(--ink);line-height:1.2;">
+            The interactive tabletop that turns<br>ordering into an experience.
+          </p>
+          <p class="lead r" style="--d:.4s;margin-top:1.1rem;">
+            Build your pizza. Watch it come to life. Taste the future of dine-in.
+          </p>
+          <div class="r" style="--d:.52s;display:flex;gap:.8rem;margin-top:1.8rem;flex-wrap:wrap;">
+            <span class="pill"><span class="dot"></span>Build</span>
+            <span class="pill"><span class="dot" style="background:var(--amber);box-shadow:0 0 10px var(--amber)"></span>Play</span>
+            <span class="pill"><span class="dot" style="background:var(--basil);box-shadow:0 0 10px var(--basil)"></span>Taste</span>
+          </div>
+        </div>
+        <div class="r blur floaty" style="--d:.3s">
+          <div class="stage">
+            <div class="orbit">
+              <div class="o" style="transform:rotate(0deg) translateX(150px)">🍕</div>
+              <div class="o" style="transform:rotate(72deg) translateX(150px)">🧀</div>
+              <div class="o" style="transform:rotate(144deg) translateX(150px)">🌶️</div>
+              <div class="o" style="transform:rotate(216deg) translateX(150px)">🍅</div>
+              <div class="o" style="transform:rotate(288deg) translateX(150px)">🫒</div>
+            </div>
+            <div class="heat"></div>
+            <div class="pie">
+              <span class="chip" style="top:26%;left:30%"></span>
+              <span class="chip" style="top:32%;left:58%"></span>
+              <span class="chip" style="top:56%;left:44%"></span>
+              <span class="chip" style="top:60%;left:22%;background:#2f6b2f"></span>
+              <span class="chip" style="top:24%;left:50%;background:#2f6b2f"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 · PROBLEM -->
+    <section class="slide" data-name="Problem">
+      <div class="wrap">
+        <span class="eyebrow r" style="--d:.05s">The Problem</span>
+        <h2 class="r" style="--d:.14s;margin:1rem 0 .5rem;">Dine-in ordering is stuck in <span class="ital ember">2005</span>.</h2>
+        <p class="lead r" style="--d:.24s;margin-bottom:2rem;">The table is the last un-digitised touchpoint in the restaurant — and it's costing both sides.</p>
+        <div class="grid two" style="grid-template-columns:1fr 1fr;gap:1.4rem;">
+          <div class="card r" style="--d:.34s">
+            <span class="ic">🙋</span><h3>For diners</h3>
+            <p style="margin-bottom:.7rem;">Static menus — you can't <em>see</em> the pizza you're building or its price &amp; nutrition until it arrives.</p>
+            <p style="margin-bottom:.7rem;">Dead waiting time — 18–25 minutes of staring at a wall.</p>
+            <p>Order errors and awkward back-and-forth with busy staff.</p>
+          </div>
+          <div class="card r" style="--d:.46s">
+            <span class="tag">the real cost</span>
+            <span class="ic">🍽️</span><h3>For restaurants</h3>
+            <p style="margin-bottom:.7rem;">Rising labour costs &amp; chronic staff shortages.</p>
+            <p style="margin-bottom:.7rem;">Zero first-party data on what customers actually crave.</p>
+            <p>Slow table turnover and missed upsell at the moment of appetite.</p>
+          </div>
+        </div>
+        <p class="r" style="--d:.58s;margin-top:1.6rem;font-family:var(--display);font-size:1.3rem;font-style:italic;color:var(--ink);">
+          “Waiting &amp; guessing” is the worst part of eating out — for everyone at the table.
+        </p>
+      </div>
+    </section>
+
+    <!-- 3 · WHY NOW -->
+    <section class="slide" data-name="Why now">
+      <div class="wrap">
+        <span class="eyebrow r" style="--d:.05s">Why Now</span>
+        <h2 class="r" style="--d:.14s;margin:1rem 0 .5rem;">Three tailwinds are <span class="grad">converging</span>.</h2>
+        <p class="lead r" style="--d:.24s;margin-bottom:2rem;">The window to own the digital table is open — briefly.</p>
+        <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:1.2rem;">
+          <div class="card r" style="--d:.34s"><span class="ic">⚙️</span><h3>Labour crunch</h3><p>Restaurants are automating service to survive staffing shortages. Self-ordering is now expected, not novel.</p></div>
+          <div class="card r" style="--d:.46s"><span class="ic">✨</span><h3>Experience economy</h3><p>Gen Z &amp; families pay a premium for interactive, shareable, “worth-posting” dining moments.</p></div>
+          <div class="card r" style="--d:.58s"><span class="ic">📲</span><h3>Digital dining is normal</h3><p>QR menus &amp; kiosks trained diners to tap-to-order. The tablet at the table is the natural next step.</p></div>
+        </div>
+        <div class="divider r" style="--d:.66s"></div>
+        <p class="r" style="--d:.72s;font-family:var(--display);font-size:1.35rem;color:var(--ink);">The tabletop is the last un-digitised inch of the restaurant. <span class="ember">We're claiming it.</span></p>
+      </div>
+    </section>
+
+    <!-- 4 · SOLUTION -->
+    <section class="slide" data-name="Solution">
+      <div class="wrap">
+        <span class="eyebrow r" style="--d:.05s">The Solution</span>
+        <h2 class="r" style="--d:.14s;margin:1rem 0 .5rem;">Meet <span class="grad">Pizza 3.14</span></h2>
+        <p class="lead r" style="--d:.24s;margin-bottom:2.2rem;">A tablet at every table that turns ordering a pizza into a game — visual, real-time, and unforgettable.</p>
+        <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:1.2rem;">
+          <div class="card r" style="--d:.34s"><span class="tag">01</span><span class="ic">🍕</span><h3>Build</h3><p>Assemble your pizza on a living canvas — drag ingredients from an orbit ring and watch it stack in real time, with live price &amp; nutrition.</p></div>
+          <div class="card r" style="--d:.46s"><span class="tag">02</span><span class="ic">🎮</span><h3>Play</h3><p>Mini-games turn the 20-minute wait into delight — and keep eyes on the screen for smart upsell.</p></div>
+          <div class="card r" style="--d:.58s"><span class="tag">03</span><span class="ic">🔔</span><h3>Taste</h3><p>Track your order live from oven to table, then leave feedback stored in a tamper-proof trust ledger.</p></div>
+        </div>
+        <p class="r" style="--d:.7s;margin-top:1.8rem;font-family:var(--display);font-style:italic;font-size:1.3rem;color:var(--ink);">Not a menu. An <span class="amber">experience OS</span> for the table.</p>
+      </div>
+    </section>
+
+    <!-- 5 · HOW IT WORKS -->
+    <section class="slide" data-name="How it works">
+      <div class="wrap">
+        <span class="eyebrow r" style="--d:.05s">How It Works</span>
+        <h2 class="r" style="--d:.14s;margin:1rem 0 1.6rem;">From seat to slice — one seamless flow.</h2>
+        <div class="flow">
+          <div class="step r" style="--d:.3s"><span class="em">🪑</span><span class="n">STEP 01</span><div class="t">Sit &amp; start</div><p>Tap the tablet already at your table. No app, no sign-up.</p></div>
+          <div class="step r" style="--d:.42s"><span class="em">🍕</span><span class="n">STEP 02</span><div class="t">Build it</div><p>Choose dough, size, sauce, cheese &amp; toppings from the orbit — see cost &amp; calories live.</p></div>
+          <div class="step r" style="--d:.54s"><span class="em">🔥</span><span class="n">STEP 03</span><div class="t">Kitchen syncs</div><p>Your order lands on the kitchen board instantly — no lost tickets.</p></div>
+          <div class="step r" style="--d:.66s"><span class="em">🎮</span><span class="n">STEP 04</span><div class="t">Play &amp; track</div><p>Games pass the time while a live status bar counts down to “served”.</p></div>
+          <div class="step r" style="--d:.78s"><span class="em">⭐</span><span class="n">STEP 05</span><div class="t">Taste &amp; rate</div><p>Enjoy, then rate — feedback is chained &amp; verifiable, never faked.</p></div>
+        </div>
+        <p class="r" style="--d:.9s;margin-top:1.6rem;"><span class="pill"><span class="dot"></span>Powered by real-time sync · zero paper tickets · zero waiter round-trips</span></p>
+      </div>
+    </section>
+
+    <!-- 6 · INNOVATION -->
+    <section class="slide" data-name="Innovation">
+      <div class="wrap">
+        <span class="eyebrow r" style="--d:.05s">The Innovation · Our Secret Sauce</span>
+        <h2 class="r" style="--d:.14s;margin:1rem 0 1.6rem;">Four things no one else puts on the table.</h2>
+        <div class="grid two" style="grid-template-columns:1fr 1fr;gap:1.2rem;">
+          <div class="card r" style="--d:.3s"><span class="ic">🛰️</span><h3>The Orbit Builder</h3><p>A living, visual customiser — ingredients orbit the pizza and stack on tap. You <em>see</em> exactly what you'll eat. Nobody builds pizza like this.</p></div>
+          <div class="card r" style="--d:.42s"><span class="ic">⚡</span><h3>Live Kitchen Sync</h3><p>Web-socket real-time push — the kitchen and your table share one truth. “Where's my order?” disappears.</p></div>
+          <div class="card r" style="--d:.54s"><span class="ic">🎯</span><h3>Gamified Wait</h3><p>We convert dead wait-time into engagement — and screen-time into measurable upsell.</p></div>
+          <div class="card r" style="--d:.66s"><span class="ic">🔗</span><h3>The Trust Ledger</h3><p>Feedback is written to a hash-chained ledger — reviews that can't be faked, edited, or deleted. Verifiable trust.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · PRODUCT / MOAT -->
+    <section class="slide" data-name="Product & Moat">
+      <div class="wrap">
+        <span class="eyebrow r" style="--d:.05s">Product &amp; Defensibility</span>
+        <h2 class="r" style="--d:.14s;margin:1rem 0 .5rem;">Already built. <span class="grad">Getting smarter.</span></h2>
+        <p class="lead r" style="--d:.24s;margin-bottom:2rem;">This isn't a mockup — it's a working, full-stack product with a data flywheel baked in.</p>
+        <div class="grid" style="grid-template-columns:1.1fr 1fr;gap:2rem;align-items:center;">
+          <div class="grid" style="grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card r" style="--d:.34s"><span class="ic">🧱</span><h3>Real, shipping tech</h3><p>Next.js · real-time Socket.io · PostgreSQL · hash-chain ledger — deployed &amp; demoable today.</p></div>
+            <div class="card r" style="--d:.44s"><span class="ic">📊</span><h3>Data moat</h3><p>Every pizza built teaches us regional taste &amp; demand — powering smarter menus, inventory &amp; upsell.</p></div>
+            <div class="card r" style="--d:.54s"><span class="ic">🔌</span><h3>Hardware-light</h3><p>Runs on any tablet — low deployment cost, fast rollout across a franchise.</p></div>
+            <div class="card r" style="--d:.64s"><span class="ic">🧩</span><h3>Category-flexible</h3><p>The build-your-own engine extends to burgers, bowls &amp; salads — one platform, many menus.</p></div>
+          </div>
+          <div class="card r" style="--d:.5s;text-align:center;padding:2.2rem 1.5rem;">
+            <p style="font-family:var(--display);font-size:1.5rem;line-height:1.3;color:var(--ink);">The more pizzas <span class="ember">built</span>,<br>the smarter the platform <span class="amber">gets</span>.</p>
+            <p style="margin-top:1rem;font-size:.85rem;">Taste data → better recommendations → higher order value → more locations → more data.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 · MARKET -->
+    <section class="slide" data-name="Market">
+      <div class="wrap">
+        <span class="eyebrow r" style="--d:.05s">Market Size</span>
+        <h2 class="r" style="--d:.14s;margin:1rem 0 1.6rem;">A slice of a very large pie.</h2>
+        <div class="market">
+          <div class="rings">
+            <div class="ring tam"><span class="rl">TAM</span></div>
+            <div class="ring sam"><span class="rl">SAM</span></div>
+            <div class="ring som"><span class="rl" style="margin-top:1.2rem">SOM</span></div>
+          </div>
+          <div class="grid" style="gap:1.1rem;">
+            <div class="card r" style="--d:.3s;border-color:rgba(255,122,26,.4)"><div style="display:flex;justify-content:space-between;align-items:baseline">
+              <h3 style="color:var(--ember)">TAM · Total pizza foodservice</h3><span class="stat"><span class="big" data-count="150" data-prefix="$" data-suffix="B">$0</span></span></div>
+              <p>The global pizza market we ultimately serve — growing ~5% every year.</p></div>
+            <div class="card r" style="--d:.44s;border-color:rgba(243,192,74,.4)"><div style="display:flex;justify-content:space-between;align-items:baseline">
+              <h3 style="color:var(--amber)">SAM · Digital dine-in tech</h3><span class="stat"><span class="big" data-count="9" data-prefix="$" data-suffix="B">$0</span></span></div>
+              <p>Dine-in pizzerias &amp; casual chains digitising the table — software &amp; services.</p></div>
+            <div class="card r" style="--d:.58s;border-color:rgba(99,194,111,.5)"><div style="display:flex;justify-content:space-between;align-items:baseline">
+              <h3 style="color:var(--basil)">SOM · 3-year obtainable</h3><span class="stat"><span class="big" data-count="45" data-prefix="$" data-suffix="M">$0</span></span></div>
+              <p>Realistic capture across our launch regions in the first three years.</p></div>
+          </div>
+        </div>
+        <small class="note r" style="--d:.7s;display:block;margin-top:1.2rem">Figures indicative, based on public industry reports — sources cited in appendix.</small>
+      </div>
+    </section>
+
+    <!-- 9 · AUDIENCE -->
+    <section class="slide" data-name="Audience">
+      <div class="wrap">
+        <span class="eyebrow r" style="--d:.05s">Target Audience</span>
+        <h2 class="r" style="--d:.14s;margin:1rem 0 .4rem;">Who pays — and who we delight.</h2>
+        <p class="lead r" style="--d:.22s;margin-bottom:1.8rem;">A B2B2C model: restaurants buy the platform; their guests fall in love with it.</p>
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:1.4rem;">
+          <div class="card r" style="--d:.32s">
+            <span class="pill" style="margin-bottom:1rem"><span class="dot"></span>Customers · B2B</span>
+            <h3 style="margin-bottom:.7rem">Who buys it</h3>
+            <p style="margin-bottom:.55rem">🍕 Mid–large <strong>pizza chains &amp; franchises</strong></p>
+            <p style="margin-bottom:.55rem">🍝 Casual-dining &amp; family restaurants</p>
+            <p style="margin-bottom:.55rem">🎳 Entertainment venues, arcades &amp; food courts</p>
+            <p>☁️ Cloud kitchens (companion ordering surface)</p>
+          </div>
+          <div class="card r" style="--d:.46s">
+            <span class="pill" style="margin-bottom:1rem;background:rgba(243,192,74,.12);border-color:rgba(243,192,74,.3)"><span class="dot" style="background:var(--amber);box-shadow:0 0 10px var(--amber)"></span>End-users · B2C</span>
+            <h3 style="margin-bottom:.7rem">Who loves it</h3>
+            <p style="margin-bottom:.55rem">👨‍👩‍👧 <strong>Families with kids</strong> — the tablet keeps everyone happy</p>
+            <p style="margin-bottom:.55rem">🧑‍🤝‍🧑 Gen Z &amp; millennial groups seeking a shareable moment</p>
+            <p style="margin-bottom:.55rem">🎨 Customisers who want it <em>their</em> way</p>
+            <p>📸 Experience-seekers who post before they eat</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 · BUSINESS MODEL -->
+    <section class="slide" data-name="Business Model">
+      <div class="wrap">
+        <span class="eyebrow r" style="--d:.05s">Business Model</span>
+        <h2 class="r" style="--d:.14s;margin:1rem 0 1.4rem;">Recurring revenue, multiple streams.</h2>
+        <div class="grid" style="grid-template-columns:repeat(4,1fr);gap:1rem;">
+          <div class="card r" style="--d:.3s"><span class="ic">💳</span><h3>SaaS per table</h3><p>Core subscription billed per active table / location. Predictable MRR.</p></div>
+          <div class="card r" style="--d:.4s"><span class="ic">🏷️</span><h3>Tiered plans</h3><p>Starter → Pro → Enterprise white-label, scaling with features &amp; locations.</p></div>
+          <div class="card r" style="--d:.5s"><span class="ic">🔄</span><h3>Transaction fee</h3><p>Small optional % on orders processed through the platform.</p></div>
+          <div class="card r" style="--d:.6s"><span class="ic">📈</span><h3>Analytics add-on</h3><p>Premium taste &amp; demand insights — the data flywheel, monetised.</p></div>
+        </div>
+        <div class="divider r" style="--d:.66s"></div>
+        <div class="grid r" style="--d:.72s;grid-template-columns:repeat(3,1fr);gap:1.4rem;">
+          <div class="stat"><span class="big"><span data-count="39" data-prefix="$">$0</span></span><span class="lbl">/ table / month · illustrative</span></div>
+          <div class="stat"><span class="big"><span data-count="580" data-prefix="$">$0</span></span><span class="lbl">avg MRR / location (15 tables)</span></div>
+          <div class="stat"><span class="big"><span data-count="90" data-suffix="%">0%</span></span><span class="lbl">gross margin · pure software</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · COMPETITION -->
+    <section class="slide" data-name="Competition">
+      <div class="wrap">
+        <span class="eyebrow r" style="--d:.05s">Competitive Landscape</span>
+        <h2 class="r" style="--d:.14s;margin:1rem 0 1.4rem;">Others digitise the <span class="ital">transaction</span>. We own the <span class="grad">experience</span>.</h2>
+        <div class="card r" style="--d:.3s;padding:.6rem 1rem;">
+          <table class="cmp">
+            <thead><tr><th>Solution</th><th>Visual build</th><th>Real-time sync</th><th>Engages the wait</th><th>Verifiable trust</th><th>Taste data</th></tr></thead>
+            <tbody>
+              <tr><td class="mark">Paper / QR menus</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+              <tr><td class="mark">POS &amp; kiosks (Toast, Square)</td><td class="no">—</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td><td class="no">Partial</td></tr>
+              <tr><td class="mark">Generic tablet menus</td><td class="no">Basic</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+              <tr class="us"><td>Pizza 3.14</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="r" style="--d:.5s;margin-top:1.3rem;font-family:var(--display);font-size:1.2rem;color:var(--ink)">Purpose-built for build-your-own — engagement, trust &amp; data others can't retrofit.</p>
+      </div>
+    </section>
+
+    <!-- 12 · GO TO MARKET -->
+    <section class="slide" data-name="Go-to-Market">
+      <div class="wrap">
+        <span class="eyebrow r" style="--d:.05s">Go-to-Market</span>
+        <h2 class="r" style="--d:.14s;margin:1rem 0 1.6rem;">Land with pizzerias. Expand into a platform.</h2>
+        <div class="flow">
+          <div class="step r" style="--d:.32s"><span class="n">PHASE 01 · 0–6 MO</span><div class="t">🍕 Prove it</div><p>Pilot 3–5 local pizzerias. Nail the experience, gather testimonials &amp; hard metrics.</p></div>
+          <div class="step r" style="--d:.46s"><span class="n">PHASE 02 · 6–18 MO</span><div class="t">🏢 Land &amp; expand</div><p>Sign regional chains &amp; franchises — roll out location by location on proven ROI.</p></div>
+          <div class="step r" style="--d:.6s"><span class="n">PHASE 03 · 18 MO+</span><div class="t">🌐 Platform</div><p>Open the build-your-own engine to burgers, bowls &amp; salads. Become the table's OS.</p></div>
+        </div>
+        <div class="divider r" style="--d:.66s"></div>
+        <p class="r" style="--d:.72s"><span class="pill"><span class="dot"></span>Channels: direct B2B sales · franchise partnerships · restaurant-tech resellers</span></p>
+      </div>
+    </section>
+
+    <!-- 13 · TRACTION & ROADMAP -->
+    <section class="slide" data-name="Traction">
+      <div class="wrap">
+        <span class="eyebrow r" style="--d:.05s">Traction &amp; Roadmap</span>
+        <h2 class="r" style="--d:.14s;margin:1rem 0 .5rem;">We've already built what others pitch.</h2>
+        <p class="lead r" style="--d:.22s;margin-bottom:1.8rem;">A live, full-stack MVP — de-risked and ready to deploy.</p>
+        <div class="flow">
+          <div class="step r" style="--d:.32s;border-color:rgba(99,194,111,.4)"><span class="n" style="color:var(--basil)">NOW ✓</span><div class="t">Working MVP</div><p>Full stack live: builder, kitchen board, admin, real-time sync, trust ledger.</p></div>
+          <div class="step r" style="--d:.44s"><span class="n">6 MONTHS</span><div class="t">Pilot deployments</div><p>3–5 partner restaurants live. Iterate on real guest &amp; kitchen feedback.</p></div>
+          <div class="step r" style="--d:.56s"><span class="n">12 MONTHS</span><div class="t">20 locations</div><p>Launch the analytics tier &amp; self-serve onboarding.</p></div>
+          <div class="step r" style="--d:.68s"><span class="n">24 MONTHS</span><div class="t">Multi-category platform</div><p>Expand beyond pizza · raise Series A on proven unit economics.</p></div>
+        </div>
+        <p class="r" style="--d:.8s;margin-top:1.5rem;font-family:var(--display);font-style:italic;font-size:1.25rem;color:var(--ink)">The hard part is done. Now we scale.</p>
+      </div>
+    </section>
+
+    <!-- 14 · TEAM -->
+    <section class="slide" data-name="Team">
+      <div class="wrap">
+        <span class="eyebrow r" style="--d:.05s">Team</span>
+        <h2 class="r" style="--d:.14s;margin:1rem 0 .4rem;">Builders who ship.</h2>
+        <p class="lead r" style="--d:.22s;margin-bottom:1.8rem;">A founding team that turned a final-year project into a working product.</p>
+        <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:1.2rem;">
+          <div class="card r" style="--d:.32s">
+            <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--ember),var(--tomato));display:grid;place-items:center;font-family:var(--display);font-size:1.3rem;color:#160c06;margin-bottom:.9rem;">A</div>
+            <h3>Ashir</h3><p style="color:var(--amber);font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;margin:.2rem 0 .5rem">Founder · Product &amp; Engineering</p>
+            <p>Built the entire full-stack platform end-to-end — from the orbit builder to the trust ledger.</p>
+          </div>
+          <div class="card r" style="--d:.44s">
+            <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--amber),var(--ember));display:grid;place-items:center;font-family:var(--display);font-size:1.3rem;color:#160c06;margin-bottom:.9rem;">+</div>
+            <h3>Co-founder</h3><p style="color:var(--amber);font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;margin:.2rem 0 .5rem">Growth &amp; Partnerships</p>
+            <p>[ Add your co-founder — restaurant / commercial background. ]</p>
+          </div>
+          <div class="card r" style="--d:.56s">
+            <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--basil),var(--amber));display:grid;place-items:center;font-family:var(--display);font-size:1.3rem;color:#160c06;margin-bottom:.9rem;">★</div>
+            <h3>Advisor</h3><p style="color:var(--amber);font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;margin:.2rem 0 .5rem">Industry Mentor</p>
+            <p>[ Add an advisor from hospitality / restaurant tech for credibility. ]</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 · THE ASK -->
+    <section class="slide" data-name="The Ask">
+      <div class="wrap" style="text-align:center;">
+        <span class="eyebrow r" style="--d:.05s;justify-content:center">The Ask · Let's Build</span>
+        <h1 class="r" style="--d:.16s;font-size:clamp(2.6rem,6vw,4.6rem);margin:1.2rem 0 .6rem;">Every table,<br>an <span class="grad">experience</span>.</h1>
+        <p class="lead r" style="--d:.3s;margin:0 auto 2rem;text-align:center;">
+          We're seeking pilot partners &amp; pre-seed backing to deploy our first 10 locations and prove the unit economics.
+        </p>
+        <div class="r" style="--d:.42s;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.2rem;">
+          <span class="pill" style="font-size:.78rem;padding:.7rem 1.2rem"><span class="dot"></span>10 pilot restaurants</span>
+          <span class="pill" style="font-size:.78rem;padding:.7rem 1.2rem"><span class="dot" style="background:var(--amber);box-shadow:0 0 10px var(--amber)"></span>Prove ROI &amp; retention</span>
+          <span class="pill" style="font-size:.78rem;padding:.7rem 1.2rem"><span class="dot" style="background:var(--basil);box-shadow:0 0 10px var(--basil)"></span>Scale the platform</span>
+        </div>
+        <div class="r floaty" style="--d:.36s;margin:0 auto 1.6rem;width:120px">
+          <div class="stage" style="width:120px">
+            <div class="heat"></div>
+            <div class="pie"><span class="chip" style="top:30%;left:34%"></span><span class="chip" style="top:40%;left:56%"></span><span class="chip" style="top:58%;left:40%;background:#2f6b2f"></span></div>
+          </div>
+        </div>
+        <p class="r" style="--d:.54s;font-family:var(--display);font-size:1.4rem;color:var(--ink)">Thank you.</p>
+        <p class="r" style="--d:.62s;font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:.6rem">
+          Pizza 3.14 &nbsp;·&nbsp; hello@pizza314.app &nbsp;·&nbsp; [ your contact ]
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Chrome -->
+  <button class="fs" id="fs" title="Fullscreen (F)">⛶</button>
+  <div class="dots" id="dots"></div>
+  <div class="nav"><button id="prev" title="Previous (←)">‹</button><button id="next" title="Next (→)">›</button></div>
+  <div class="foot">
+    <span class="brand">Pizza 3.14</span>
+    <span id="counter">01 / 15</span>
+  </div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length, cur = 0;
+  var prog = document.getElementById('prog');
+  var counter = document.getElementById('counter');
+  var dotsWrap = document.getElementById('dots');
+
+  // build dots
+  slides.forEach(function(s,i){
+    var b = document.createElement('button');
+    b.title = s.dataset.name || ('Slide '+(i+1));
+    b.addEventListener('click', function(){ go(i); });
+    dotsWrap.appendChild(b);
+  });
+  var dots = Array.prototype.slice.call(dotsWrap.children);
+
+  function pad(n){ return (n<10?'0':'')+n; }
+
+  function countUp(slide){
+    slide.querySelectorAll('[data-count]').forEach(function(el){
+      if(el.dataset.done) { return; }
+      var target = parseFloat(el.dataset.count);
+      var pre = el.dataset.prefix||'', suf = el.dataset.suffix||'';
+      var finalShown = (target%1===0) ? Math.round(target) : target.toFixed(1);
+      var start = null, dur = 1100;
+      function tick(t){
+        if(el.dataset.done) { return; }
+        if(!start) start = t;
+        var p = Math.min(1,(t-start)/dur);
+        var eased = 1-Math.pow(1-p,3);
+        var val = target*eased;
+        var shown = (target%1===0) ? Math.round(val) : val.toFixed(1);
+        el.textContent = pre+shown+suf;
+        if(p<1){ requestAnimationFrame(tick); } else { el.dataset.done='1'; }
+      }
+      requestAnimationFrame(tick);
+      // Fallback: guarantee the final value even if rAF is throttled (hidden tab)
+      setTimeout(function(){ if(!el.dataset.done){ el.textContent = pre+finalShown+suf; el.dataset.done='1'; } }, 1500);
+    });
+  }
+
+  function go(i){
+    if(i<0) i=0; if(i>total-1) i=total-1;
+    slides[cur].classList.remove('active');
+    slides[cur].classList.toggle('prev', i>cur);
+    cur = i;
+    slides[cur].classList.add('active');
+    slides[cur].classList.remove('prev');
+    prog.style.width = ((i)/(total-1)*100)+'%';
+    counter.textContent = pad(i+1)+' / '+pad(total);
+    dots.forEach(function(d,di){ d.classList.toggle('on', di===i); });
+    // fire count-ups shortly after reveal
+    setTimeout(function(){ countUp(slides[cur]); }, 400);
+  }
+
+  function next(){ go(cur+1); }
+  function prev(){ go(cur-1); }
+
+  document.addEventListener('keydown', function(e){
+    if(['ArrowRight','ArrowDown','PageDown',' '].indexOf(e.key)>-1){ e.preventDefault(); next(); }
+    else if(['ArrowLeft','ArrowUp','PageUp'].indexOf(e.key)>-1){ e.preventDefault(); prev(); }
+    else if(e.key==='Home'){ go(0); }
+    else if(e.key==='End'){ go(total-1); }
+    else if(e.key==='f'||e.key==='F'){ toggleFs(); }
+  });
+  document.getElementById('next').addEventListener('click', next);
+  document.getElementById('prev').addEventListener('click', prev);
+
+  function toggleFs(){
+    if(!document.fullscreenElement){ (document.documentElement.requestFullscreen||function(){})(); }
+    else { (document.exitFullscreen||function(){})(); }
+  }
+  document.getElementById('fs').addEventListener('click', toggleFs);
+
+  // swipe (touch)
+  var sx=null;
+  document.addEventListener('touchstart',function(e){ sx=e.touches[0].clientX; },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(sx===null) return; var dx=e.changedTouches[0].clientX-sx;
+    if(Math.abs(dx)>50){ dx<0?next():prev(); } sx=null;
+  },{passive:true});
+
+  go(0);
+})();
+</script>
+</body>
+</html>
