@@ -2,31 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-/**
- * Warm, on-theme intro loader: a pizza assembles itself (dough → sauce →
- * cheese → toppings) inside a spinning oven-heat ring while "Launching
- * flavours" appears. Pure CSS animation + timeout dismissal (reliable even
- * when the tab is backgrounded). Click to skip. Respects reduced-motion.
- */
-
-// Toppings that pop onto the loader pizza. Positions are % of the pizza box.
-const TOPPINGS: {
-  x: number;
-  y: number;
-  s: number;
-  c: string;
-  d: number;
-  ring?: boolean;
-}[] = [
-  { x: 34, y: 30, s: 15, c: "hsl(4 74% 47%)", d: 0.55 }, // pepperoni
-  { x: 62, y: 33, s: 14, c: "hsl(4 74% 47%)", d: 0.68 },
-  { x: 47, y: 52, s: 14, c: "hsl(4 74% 47%)", d: 0.81 },
-  { x: 29, y: 58, s: 10, c: "hsl(96 42% 40%)", d: 0.94 }, // green pepper
-  { x: 67, y: 60, s: 10, c: "hsl(96 42% 40%)", d: 1.07 },
-  { x: 54, y: 26, s: 8, c: "hsl(28 18% 14%)", d: 1.2, ring: true }, // olive
-  { x: 40, y: 42, s: 8, c: "hsl(28 18% 14%)", d: 1.33, ring: true },
-];
-
 export default function IntroOverlay() {
   const [gone, setGone] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -37,8 +12,10 @@ export default function IntroOverlay() {
       setGone(true);
       return;
     }
-    const t1 = setTimeout(() => setClosing(true), 2300);
-    const t2 = setTimeout(() => setGone(true), 2900);
+
+    const t1 = setTimeout(() => setClosing(true), 2200);
+    const t2 = setTimeout(() => setGone(true), 2800);
+
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -50,131 +27,102 @@ export default function IntroOverlay() {
   return (
     <div
       onClick={() => setGone(true)}
-      className={`forno-room fixed inset-0 z-[100] flex flex-col items-center justify-center cursor-pointer transition-opacity duration-500 ${
+      className={`fixed inset-0 z-[100] flex cursor-pointer items-center justify-center overflow-hidden transition-opacity duration-500 ${
         closing ? "opacity-0" : "opacity-100"
       }`}
       aria-hidden
+      style={{
+        background:
+          "radial-gradient(circle at center, rgba(94, 122, 168, 0.12) 0%, rgba(13, 18, 28, 0.92) 42%, rgba(6, 10, 17, 0.98) 74%), linear-gradient(180deg, #101723 0%, #070b12 100%)",
+      }}
     >
-      {/* warm pooled light */}
       <div
-        className="absolute pointer-events-none"
+        className="pointer-events-none absolute inset-0"
         style={{
-          width: 420,
-          height: 420,
           background:
-            "radial-gradient(circle, hsl(30 90% 52% / 0.18), transparent 65%)",
+            "radial-gradient(circle at center, rgba(120, 150, 198, 0.08), transparent 34%)",
         }}
       />
 
-      {/* Steam */}
-      <div className="relative flex justify-center gap-3 mb-1" style={{ height: 34 }}>
-        {[0, 0.5, 1].map((d, i) => (
+      <div className="pointer-events-none relative flex w-full max-w-4xl flex-col items-center px-8 text-center">
+        <div
+          className="absolute left-1/2 top-1/2 h-80 w-[38rem] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(120, 148, 191, 0.08) 0%, rgba(120, 148, 191, 0.025) 48%, transparent 74%)",
+          }}
+        />
+
+        <h1
+          className="relative whitespace-nowrap text-[clamp(1.1rem,2.15vw,2.05rem)] font-semibold uppercase tracking-[0.055em] text-slate-200"
+          style={{
+            textShadow: "0 0 18px rgba(158, 184, 225, 0.04)",
+            animation: "intro-title-rise 0.8s cubic-bezier(.16,1,.3,1) both",
+          }}
+        >
+          Launching Flavor Studio
+        </h1>
+
+        <div
+          className="relative mt-10 h-px w-full max-w-[32rem] overflow-hidden rounded-full bg-slate-200/10"
+          style={{ animation: "intro-line-fade 0.7s ease-out 0.15s both" }}
+        >
           <span
-            key={i}
-            className="forno-steam block rounded-full"
+            className="absolute inset-y-0 left-1/2 w-52 -translate-x-1/2"
             style={{
-              width: 4,
-              height: 26,
               background:
-                "linear-gradient(to top, transparent, hsl(38 30% 92% / 0.6), transparent)",
-              filter: "blur(2px)",
-              animationDelay: `${d}s`,
+                "linear-gradient(90deg, transparent, rgba(186, 201, 225, 0.72), transparent)",
+              boxShadow: "0 0 10px rgba(186, 201, 225, 0.18)",
+              animation: "intro-line-sweep 1.45s ease-out 0.2s both",
             }}
           />
-        ))}
+        </div>
       </div>
 
-      {/* Pizza + oven-heat ring */}
-      <div className="relative" style={{ width: 176, height: 176 }}>
-        {/* rotating ember heat ring */}
-        <div
-          className="forno-spin absolute rounded-full"
-          style={{
-            inset: "-9%",
-            background:
-              "conic-gradient(from 0deg, transparent 0 55%, hsl(38 96% 60% / 0.95) 80%, hsl(24 95% 53% / 0.4) 92%, transparent 100%)",
-            WebkitMask:
-              "radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px))",
-            mask: "radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px))",
-          }}
-        />
+      <style jsx>{`
+        @keyframes intro-title-rise {
+          0% {
+            opacity: 0;
+            transform: translateY(16px) scale(0.985);
+            letter-spacing: 0.14em;
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            letter-spacing: 0.08em;
+          }
+        }
 
-        {/* crust */}
-        <div
-          className="absolute inset-0 rounded-full forno-glow"
-          style={{
-            background:
-              "radial-gradient(circle at 50% 42%, hsl(32 46% 40%), hsl(26 44% 26%))",
-            boxShadow:
-              "inset 0 0 14px hsl(20 50% 12% / 0.7), 0 12px 40px -8px hsl(24 90% 45% / 0.5)",
-          }}
-        />
-        {/* dough */}
-        <div
-          className="absolute rounded-full"
-          style={{
-            inset: "7%",
-            background:
-              "radial-gradient(circle at 48% 40%, hsl(38 52% 66%), hsl(34 44% 54%))",
-          }}
-        />
-        {/* sauce */}
-        <div
-          className="forno-pop absolute rounded-full"
-          style={{
-            inset: "15%",
-            background:
-              "radial-gradient(circle at 50% 45%, hsl(6 72% 48%), hsl(4 68% 38%))",
-            animationDelay: "0.15s",
-          }}
-        />
-        {/* cheese sheen */}
-        <div
-          className="forno-pop absolute rounded-full"
-          style={{
-            inset: "16%",
-            background:
-              "radial-gradient(circle at 42% 36%, hsl(45 75% 78% / 0.55), transparent 62%)",
-            animationDelay: "0.32s",
-          }}
-        />
-        {/* toppings */}
-        {TOPPINGS.map((t, i) => (
-          <span
-            key={i}
-            className="forno-pop absolute rounded-full"
-            style={{
-              left: `${t.x}%`,
-              top: `${t.y}%`,
-              width: t.s,
-              height: t.s,
-              marginLeft: -t.s / 2,
-              marginTop: -t.s / 2,
-              background: t.ring ? "transparent" : t.c,
-              border: t.ring ? `${Math.round(t.s / 3)}px solid ${t.c}` : "none",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.45)",
-              animationDelay: `${t.d}s`,
-            }}
-          />
-        ))}
-      </div>
+        @keyframes intro-line-fade {
+          0% {
+            opacity: 0;
+            transform: scaleX(0.72);
+          }
+          100% {
+            opacity: 1;
+            transform: scaleX(1);
+          }
+        }
 
-      {/* Text */}
-      <p className="font-display italic text-3xl md:text-4xl text-gradient-forno mt-7 leading-none">
-        Launching flavours
-      </p>
-      <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-cream/45 mt-3 flex items-center gap-2">
-        warming the oven
-        <span className="flex gap-1">
-          {[0, 0.2, 0.4].map((d, i) => (
-            <span
-              key={i}
-              className="forno-blink w-1 h-1 rounded-full bg-ember"
-              style={{ animationDelay: `${d}s` }}
-            />
-          ))}
-        </span>
-      </p>
+        @keyframes intro-line-sweep {
+          0% {
+            opacity: 0;
+            transform: translateX(-50%) scaleX(0.2);
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(-50%) scaleX(1);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          h1,
+          div,
+          span {
+            animation: none !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

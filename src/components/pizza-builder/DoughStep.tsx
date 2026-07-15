@@ -12,13 +12,6 @@ export default function DoughStep({ bases, selectedId }: Props) {
 
   return (
     <div className="flex flex-col items-center gap-2 text-center animate-rise">
-      <p className="text-[9.5px] font-mono uppercase tracking-[0.3em] text-cheese/80">
-        Step 1 — Choose your dough
-      </p>
-      <p className="text-sm text-cream/70 max-w-md leading-snug font-ui">
-        Swipe the pizza (or use the arrows) to flip through the crusts.
-      </p>
-
       <div className="flex gap-1.5 mt-0.5">
         {bases.map((b, i) => (
           <span

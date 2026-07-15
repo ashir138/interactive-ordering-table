@@ -12,11 +12,9 @@ interface Props {
 }
 
 export default function BillPanel({ items, totals, onRemove, locked }: Props) {
-  const scope = useRef<HTMLDivElement>(null);
   const totalRef = useRef<HTMLSpanElement>(null);
   const prev = useRef(0);
 
-  // Base pizza = everything that isn't a topping; add-ons = the toppings.
   const baseSubtotal = items
     .filter((i) => i.layerType !== "TOPPING")
     .reduce((s, i) => s + i.price, 0);
@@ -24,11 +22,8 @@ export default function BillPanel({ items, totals, onRemove, locked }: Props) {
     .filter((i) => i.layerType === "TOPPING")
     .reduce((s, i) => s + i.price, 0);
 
-  // Animated count-up on total
   useEffect(() => {
-    const reduce = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const el = totalRef.current;
     if (!el) return;
     if (reduce) {
@@ -49,38 +44,37 @@ export default function BillPanel({ items, totals, onRemove, locked }: Props) {
   }, [totals.price]);
 
   return (
-    <div
-      ref={scope}
-      className="forno-panel rounded-2xl p-4 flex flex-col gap-3 w-full"
-    >
+    <div className="w-full rounded-[1.95rem] border border-slate-300/14 bg-[linear-gradient(180deg,rgba(11,12,15,0.99),rgba(5,6,9,0.99))] px-5 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_24px_54px_rgba(0,0,0,0.44)] flex flex-col gap-4">
       <div className="flex items-center gap-2">
-        <span className="w-1.5 h-1.5 rounded-full bg-ember animate-pulse shadow-[0_0_8px_hsl(24_95%_53%)]" />
-        <p className="text-[9.5px] font-mono uppercase tracking-[0.25em] text-ember/90">
+        <span className="h-1.5 w-1.5 rounded-full bg-ember shadow-[0_0_8px_hsl(24_95%_53%)]" />
+        <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-ember/90">
           Live Total
         </p>
       </div>
 
       {items.length === 0 ? (
-        <p className="text-xs text-cream/35 italic py-3 font-display">
-          A blank canvas — start with a base.
+        <p className="py-3 font-ui text-sm text-[#dce6ff]/50">
+          A blank canvas. Start with a base.
         </p>
       ) : (
-        <ul className="flex flex-col gap-2 max-h-[130px] overflow-y-auto pr-1">
+        <ul className="flex max-h-[130px] flex-col gap-2.5 overflow-y-auto pr-1">
           {items.map((item) => (
             <li
               key={item.id}
-              className="flex items-center justify-between text-xs gap-2"
+              className="flex items-center justify-between gap-2 text-sm"
             >
-              <span className="text-cream/80 truncate">{item.name}</span>
-              <span className="flex items-center gap-2 shrink-0">
-                <span className="font-mono text-cream/50 text-[10.5px] tabular-nums">
+              <span className="truncate font-ui text-[#eef2ff]/80">
+                {item.name}
+              </span>
+              <span className="flex shrink-0 items-center gap-2">
+                <span className="font-mono text-[11px] tabular-nums text-[#eef2ff]/48">
                   ${item.price.toFixed(2)}
                 </span>
                 {!locked && (
                   <button
                     onClick={() => onRemove(item.id)}
                     aria-label={`Remove ${item.name}`}
-                    className="w-4 h-4 rounded-full text-cream/30 hover:text-red-400 hover:bg-red-500/10 transition-colors text-[11px] leading-none focus:outline-none focus:ring-1 focus:ring-red-400"
+                    className="h-4 w-4 rounded-full text-[11px] leading-none text-white/28 transition-colors hover:bg-red-500/10 hover:text-red-400 focus:outline-none focus:ring-1 focus:ring-red-400"
                   >
                     ×
                   </button>
@@ -91,41 +85,40 @@ export default function BillPanel({ items, totals, onRemove, locked }: Props) {
         </ul>
       )}
 
-      {/* Breakdown */}
-      <div className="border-t border-cream/10 pt-3 flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2 border-t border-white/8 pt-4">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-[0.16em] text-cream/40">
-            Base pizza
+          <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-[#5c76ad]">
+            Base Pizza
           </span>
-          <span className="font-mono text-xs text-cream/70 tabular-nums">
+          <span className="font-ui text-[0.96rem] font-semibold tabular-nums text-[#eef2ff]">
             ${baseSubtotal.toFixed(2)}
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-[0.16em] text-cream/40">
+          <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-[#5c76ad]">
             Add-ons
           </span>
-          <span className="font-mono text-xs text-cream/70 tabular-nums">
+          <span className="font-ui text-[0.96rem] font-semibold tabular-nums text-[#eef2ff]">
             ${addonsSubtotal.toFixed(2)}
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-[0.16em] text-cream/40">
+          <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-[#5c76ad]">
             Calories
           </span>
-          <span className="font-mono text-xs text-cream/70 tabular-nums">
+          <span className="font-ui text-[0.96rem] font-semibold tabular-nums text-[#eef2ff]">
             {totals.calories} kcal
           </span>
         </div>
       </div>
 
-      <div className="border-t border-dashed border-cream/15 pt-3 flex items-baseline justify-between">
-        <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-cream/45">
-          Current total
+      <div className="flex items-baseline justify-between border-t border-dashed border-white/10 pt-4">
+        <span className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#5c76ad]">
+          Current Total
         </span>
         <span
           ref={totalRef}
-          className="font-display text-[26px] font-semibold text-gradient-forno tabular-nums"
+          className="font-ui text-[2rem] font-light leading-none tabular-nums text-[#ffc07f]"
         >
           ${totals.price.toFixed(2)}
         </span>

@@ -35,10 +35,17 @@ function toppingAngle(id: number): number {
   return (id * 47) % 360;
 }
 
+function layerScale(item: MenuItem): number {
+  const image = item.imageUrl.toLowerCase();
+  if (image.includes("/sauces/bbq")) return 1.16;
+  if (image.includes("/cheese/mozzarella")) return 1.28;
+  return 1;
+}
+
 const SIZE_SCALE: Record<PizzaSize, number> = {
-  SMALL: 0.82,
-  MEDIUM: 1,
-  LARGE: 1.15,
+  SMALL: 0.78,
+  MEDIUM: 0.92,
+  LARGE: 1,
 };
 
 interface Props {
@@ -322,6 +329,12 @@ const PizzaCanvas = forwardRef<PizzaCanvasHandle, Props>(function PizzaCanvas(
           const cfg = LAYER_CONFIG[item.layerType] ?? LAYER_CONFIG.TOPPING;
           const inset = cfg.inset;
           const isTopping = item.layerType === "TOPPING";
+          const imageFit = isTopping ? "object-contain" : "object-cover";
+          const scaleFactor = layerScale(item);
+          const baseTransform = isTopping
+            ? `rotate(${toppingAngle(item.id)}deg)`
+            : "";
+          const scaleTransform = scaleFactor !== 1 ? ` scale(${scaleFactor})` : "";
           return (
             <div
               key={item.id}
@@ -336,9 +349,8 @@ const PizzaCanvas = forwardRef<PizzaCanvasHandle, Props>(function PizzaCanvas(
                 right: inset,
                 bottom: inset,
                 zIndex: item.zIndex,
-                transform: isTopping
-                  ? `rotate(${toppingAngle(item.id)}deg)`
-                  : undefined,
+                transform: `${baseTransform}${scaleTransform}`.trim() || undefined,
+                transformOrigin: "50% 50%",
                 filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.4))",
               }}
             >
@@ -347,7 +359,7 @@ const PizzaCanvas = forwardRef<PizzaCanvasHandle, Props>(function PizzaCanvas(
                 alt={`${item.name} layer`}
                 fill
                 sizes={`${diameter}px`}
-                className="object-contain rounded-full pointer-events-none select-none"
+                className={`${imageFit} rounded-full pointer-events-none select-none`}
                 loading="eager"
               />
             </div>
@@ -395,22 +407,6 @@ const PizzaCanvas = forwardRef<PizzaCanvasHandle, Props>(function PizzaCanvas(
         {/* Swipe hint overlay arrows */}
         {onSwipe && swipeHint && (
           <>
-            <button
-              type="button"
-              onClick={() => onSwipe(1)}
-              aria-label={swipeHint.left}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-50 w-11 h-11 rounded-full bg-black/55 border border-cream/20 text-cream hover:text-ember hover:border-ember/70 transition-colors flex items-center justify-center text-xl font-light backdrop-blur-md shadow-lg"
-            >
-              ‹
-            </button>
-            <button
-              type="button"
-              onClick={() => onSwipe(-1)}
-              aria-label={swipeHint.right}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-50 w-11 h-11 rounded-full bg-black/55 border border-cream/20 text-cream hover:text-ember hover:border-ember/70 transition-colors flex items-center justify-center text-xl font-light backdrop-blur-md shadow-lg"
-            >
-              ›
-            </button>
             <p className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 text-[9px] font-mono uppercase tracking-[0.3em] text-cream/60 pointer-events-none">
               swipe to switch
             </p>
